@@ -1,0 +1,366 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/RobertLesgros/rustdesk-api/v2/config"
+	"github.com/RobertLesgros/rustdesk-api/v2/global"
+	"github.com/RobertLesgros/rustdesk-api/v2/http"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/audit"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/cache"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/jwt"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/lock"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/logger"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/orm"
+	"github.com/RobertLesgros/rustdesk-api/v2/lib/upload"
+	"github.com/RobertLesgros/rustdesk-api/v2/model"
+	"github.com/RobertLesgros/rustdesk-api/v2/service"
+	"github.com/RobertLesgros/rustdesk-api/v2/utils"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/spf13/cobra"
+)
+
+const DatabaseVersion = 265
+
+// @title RustDesk API
+// @version 1.0
+// @description RustDesk API Server
+// @basePath /api
+// @securityDefinitions.apikey token
+// @in header
+// @name api-token
+// @securitydefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+var rootCmd = &cobra.Command{
+	Use:   "apimain",
+	Short: "RUSTDESK API SERVER",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		InitGlobal()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		global.Logger.Info("API SERVER START")
+		http.ApiInit()
+	},
+}
+
+var resetPwdCmd = &cobra.Command{
+	Use:     "reset-admin-pwd [pwd]",
+	Example: "reset-admin-pwd 123456",
+	Short:   "Reset Admin Password",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		pwd := args[0]
+		admin := service.AllService.UserService.InfoById(1)
+		if admin.Id == 0 {
+			global.Logger.Warn("user not found! ")
+			return
+		}
+		err := service.AllService.UserService.UpdatePassword(admin, pwd)
+		if err != nil {
+			global.Logger.Error("reset password fail! ", err)
+			return
+		}
+		global.Logger.Info("reset password success! ")
+	},
+}
+var resetUserPwdCmd = &cobra.Command{
+	Use:     "reset-pwd [userId] [pwd]",
+	Example: "reset-pwd 2 123456",
+	Short:   "Reset User Password",
+	Args:    cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		userId := args[0]
+		pwd := args[1]
+		uid, err := strconv.Atoi(userId)
+		if err != nil {
+			global.Logger.Warn("userId must be int!")
+			return
+		}
+		if uid <= 0 {
+			global.Logger.Warn("userId must be greater than 0! ")
+			return
+		}
+		u := service.AllService.UserService.InfoById(uint(uid))
+		if u.Id == 0 {
+			global.Logger.Warn("user not found! ")
+			return
+		}
+		err = service.AllService.UserService.UpdatePassword(u, pwd)
+		if err != nil {
+			global.Logger.Warn("reset password fail! ", err)
+			return
+		}
+		global.Logger.Info("reset password success!")
+	},
+}
+
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&global.ConfigPath, "config", "c", "./conf/config.yaml", "choose config file")
+	rootCmd.AddCommand(resetPwdCmd, resetUserPwdCmd)
+}
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		global.Logger.Error(err)
+		os.Exit(1)
+	}
+}
+
+func InitGlobal() {
+	// Configuration parsing
+	global.Viper = config.Init(&global.Config, global.ConfigPath)
+
+	// Logger initialization
+	global.Logger = logger.New(&logger.Config{
+		Path:         global.Config.Logger.Path,
+		Level:        global.Config.Logger.Level,
+		ReportCaller: global.Config.Logger.ReportCaller,
+	})
+
+	// Audit logger initialization for structured security events
+	if err := audit.Init(&audit.Config{
+		Enabled:  global.Config.Audit.Enabled,
+		FilePath: global.Config.Audit.FilePath,
+	}); err != nil {
+		global.Logger.Warnf("Failed to initialize audit logger: %v", err)
+	}
+
+	global.InitI18n()
+
+	// Redis connection
+	global.Redis = redis.NewClient(&redis.Options{
+		Addr:     global.Config.Redis.Addr,
+		Password: global.Config.Redis.Password,
+		DB:       global.Config.Redis.Db,
+	})
+
+	// Cache initialization
+	if global.Config.Cache.Type == cache.TypeFile {
+		fc := cache.NewFileCache()
+		fc.SetDir(global.Config.Cache.FileDir)
+		global.Cache = fc
+	} else if global.Config.Cache.Type == cache.TypeRedis {
+		global.Cache = cache.NewRedis(&redis.Options{
+			Addr:     global.Config.Cache.RedisAddr,
+			Password: global.Config.Cache.RedisPwd,
+			DB:       global.Config.Cache.RedisDb,
+		})
+	}
+	// GORM database initialization
+	if global.Config.Gorm.Type == config.TypeMysql {
+
+		dsn := fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=%s",
+			global.Config.Mysql.Username,
+			global.Config.Mysql.Password,
+			global.Config.Mysql.Addr,
+			global.Config.Mysql.Dbname,
+			global.Config.Mysql.Tls,
+		)
+
+		global.DB = orm.NewMysql(&orm.MysqlConfig{
+			Dsn:          dsn,
+			MaxIdleConns: global.Config.Gorm.MaxIdleConns,
+			MaxOpenConns: global.Config.Gorm.MaxOpenConns,
+		}, global.Logger)
+	} else if global.Config.Gorm.Type == config.TypePostgresql {
+		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s",
+			global.Config.Postgresql.Host,
+			global.Config.Postgresql.Port,
+			global.Config.Postgresql.User,
+			global.Config.Postgresql.Password,
+			global.Config.Postgresql.Dbname,
+			global.Config.Postgresql.Sslmode,
+			global.Config.Postgresql.TimeZone,
+		)
+		global.DB = orm.NewPostgresql(&orm.PostgresqlConfig{
+			Dsn:          dsn,
+			MaxIdleConns: global.Config.Gorm.MaxIdleConns,
+			MaxOpenConns: global.Config.Gorm.MaxOpenConns,
+		}, global.Logger)
+	} else {
+		// SQLite (default)
+		global.DB = orm.NewSqlite(&orm.SqliteConfig{
+			MaxIdleConns: global.Config.Gorm.MaxIdleConns,
+			MaxOpenConns: global.Config.Gorm.MaxOpenConns,
+		}, global.Logger)
+	}
+
+	// Validator initialization
+	global.ApiInitValidator()
+
+	// OSS (Object Storage Service) configuration
+	global.Oss = &upload.Oss{
+		AccessKeyId:     global.Config.Oss.AccessKeyId,
+		AccessKeySecret: global.Config.Oss.AccessKeySecret,
+		Host:            global.Config.Oss.Host,
+		CallbackUrl:     global.Config.Oss.CallbackUrl,
+		ExpireTime:      global.Config.Oss.ExpireTime,
+		MaxByte:         global.Config.Oss.MaxByte,
+	}
+
+	// JWT configuration
+	global.Jwt = jwt.NewJwt(global.Config.Jwt.Key, global.Config.Jwt.ExpireDuration)
+
+	// Lock service
+	global.Lock = lock.NewLocal()
+
+	// Service layer initialization
+	service.New(&global.Config, global.DB, global.Logger, global.Jwt, global.Lock)
+
+	global.LoginLimiter = utils.NewLoginLimiter(utils.SecurityPolicy{
+		CaptchaThreshold: global.Config.App.CaptchaThreshold,
+		BanThreshold:     global.Config.App.BanThreshold,
+		AttemptsWindow:   10 * time.Minute,
+		BanDuration:      30 * time.Minute,
+	})
+	global.LoginLimiter.RegisterProvider(utils.B64StringCaptchaProvider{})
+	DatabaseAutoUpdate()
+}
+
+func DatabaseAutoUpdate() {
+	version := DatabaseVersion
+
+	db := global.DB
+
+	if global.Config.Gorm.Type == config.TypeMysql {
+		// Check if database exists, create if not
+		dbName := db.Migrator().CurrentDatabase()
+		if dbName == "" {
+			dbName = global.Config.Mysql.Dbname
+			// Remove database name from DSN for initial connection
+			dsnWithoutDB := fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+				global.Config.Mysql.Username,
+				global.Config.Mysql.Password,
+				global.Config.Mysql.Addr,
+				"",
+			)
+
+			// New connection without database
+			dbWithoutDB := orm.NewMysql(&orm.MysqlConfig{
+				Dsn: dsnWithoutDB,
+			}, global.Logger)
+			// Get underlying *sql.DB object and ensure connection is closed on exit
+			sqlDBWithoutDB, err := dbWithoutDB.DB()
+			if err != nil {
+				global.Logger.Errorf("Failed to get underlying *sql.DB object: %v", err)
+				return
+			}
+			defer func() {
+				if err := sqlDBWithoutDB.Close(); err != nil {
+					global.Logger.Errorf("Failed to close connection: %v", err)
+				}
+			}()
+
+			err = dbWithoutDB.Exec("CREATE DATABASE IF NOT EXISTS " + dbName + " DEFAULT CHARSET utf8mb4").Error
+			if err != nil {
+				global.Logger.Error(err)
+				return
+			}
+		}
+	}
+
+	if !db.Migrator().HasTable(&model.Version{}) {
+		Migrate(uint(version))
+	} else {
+		// Find the last version
+		var v model.Version
+		db.Last(&v)
+		if v.Version < uint(version) {
+			Migrate(uint(version))
+		}
+
+		// Migration for version 245
+		if v.Version < 245 {
+			// Set oauth_type field to the same value as op
+			db.Exec("update oauths set oauth_type = op")
+			db.Exec("update oauths set issuer = 'https://accounts.google.com' where op = 'google'")
+			db.Exec("update user_thirds set oauth_type = third_type, op = third_type")
+			// Migrate old Google OAuth via email
+			uts := make([]model.UserThird, 0)
+			db.Where("oauth_type = ?", "google").Find(&uts)
+			for _, ut := range uts {
+				if ut.UserId > 0 {
+					db.Model(&model.User{}).Where("id = ?", ut.UserId).Update("email", ut.OpenId)
+				}
+			}
+		}
+		if v.Version < 246 {
+			db.Exec("update oauths set issuer = 'https://accounts.google.com' where op = 'google' and issuer is null")
+		}
+	}
+
+}
+func Migrate(version uint) {
+	global.Logger.Info("Migrating....", version)
+	err := global.DB.AutoMigrate(
+		&model.Version{},
+		&model.User{},
+		&model.UserToken{},
+		&model.Tag{},
+		&model.AddressBook{},
+		&model.Peer{},
+		&model.Group{},
+		&model.UserThird{},
+		&model.Oauth{},
+		&model.LoginLog{},
+		&model.ShareRecord{},
+		&model.AuditConn{},
+		&model.AuditFile{},
+		&model.AddressBookCollection{},
+		&model.AddressBookCollectionRule{},
+		&model.ServerCmd{},
+		&model.DeviceGroup{},
+	)
+	if err != nil {
+		global.Logger.Error("migrate err :=>", err)
+	}
+	global.DB.Create(&model.Version{Version: version})
+	// If first run, create a default admin user
+	var vc int64
+	global.DB.Model(&model.Version{}).Count(&vc)
+	if vc == 1 {
+		localizer := global.Localizer("")
+		defaultGroup, _ := localizer.LocalizeMessage(&i18n.Message{
+			ID: "DefaultGroup",
+		})
+		group := &model.Group{
+			Name: defaultGroup,
+			Type: model.GroupTypeDefault,
+		}
+		service.AllService.GroupService.Create(group)
+
+		shareGroup, _ := localizer.LocalizeMessage(&i18n.Message{
+			ID: "ShareGroup",
+		})
+		groupShare := &model.Group{
+			Name: shareGroup,
+			Type: model.GroupTypeShare,
+		}
+		service.AllService.GroupService.Create(groupShare)
+		// Create admin user
+		is_admin := true
+		admin := &model.User{
+			Username: "admin",
+			Nickname: "Admin",
+			Status:   model.COMMON_STATUS_ENABLE,
+			IsAdmin:  &is_admin,
+			GroupId:  1,
+		}
+
+		// Generate random password
+		pwd := utils.RandomString(8)
+		global.Logger.Info("Admin Password Is: ", pwd)
+		var err error
+		admin.Password, err = utils.EncryptPassword(pwd)
+		if err != nil {
+			global.Logger.Fatalf("failed to generate admin password: %v", err)
+		}
+		global.DB.Create(admin)
+	}
+
+}

@@ -1,0 +1,100 @@
+# Docker Compose pour RustDesk API
+# Configuration sécurisée pour déploiement en production
+#
+# IMPORTANT: Ce fichier ne contient PAS de secrets
+# Utilisez des variables d'environnement ou Docker secrets
+
+version: '3.8'
+
+services:
+  rustdesk-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: rustdesk-api:latest
+    container_name: rustdesk-api
+    restart: unless-stopped
+
+    # Security: Run as non-root user (also enforced in Dockerfile)
+    user: "1000:1000"
+
+    # Security: Read-only root filesystem
+    read_only: true
+
+    # Security: Drop all capabilities, add only what's needed
+    cap_drop:
+      - ALL
+
+    # Security: No privilege escalation
+    security_opt:
+      - no-new-privileges:true
+
+    # Network ports
+    ports:
+      - "21114:21114"
+
+    # Volumes for persistent data and writable directories
+    volumes:
+      - rustdesk-data:/app/data
+      - rustdesk-runtime:/app/runtime
+      - ./conf:/app/conf:ro  # Configuration en lecture seule
+
+    # Tmpfs for temporary files (since read_only is true)
+    tmpfs:
+      - /tmp:mode=1777,size=64M
+
+    # Environment variables for configuration
+    # IMPORTANT: Ne mettez JAMAIS de secrets directement ici
+    # Utilisez un fichier .env ou Docker secrets
+    environment:
+      - TZ=Europe/Paris
+      # Configuration via variables d'environnement
+      # Ces variables remplacent les valeurs dans config.yaml
+      - RUSTDESK_API_LANG=fr
+      - RUSTDESK_API_GIN_MODE=release
+      # Secrets should be passed via .env file or Docker secrets
+      # - RUSTDESK_API_JWT_KEY=${JWT_KEY}
+      # - RUSTDESK_API_MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+    # Env file for secrets (create this file with your secrets)
+    env_file:
+      - .env.production
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:21114/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+# Named volumes for data persistence
+volumes:
+  rustdesk-data:
+    driver: local
+  rustdesk-runtime:
+    driver: local
+
+# Network configuration (optional, for isolation)
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "true"

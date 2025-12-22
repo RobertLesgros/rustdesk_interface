@@ -1,0 +1,1069 @@
+basePath: /api
+definitions:
+  api.AddressBookForm:
+    properties:
+      data:
+        example: '{"tags":["tag1","tag2","tag3"],"peers":[{"id":"abc","username":"abv-l","hostname":"","platform":"Windows","alias":"","tags":["tag1","tag2"],"hash":"hash"}],"tag_colors":"{\"tag1\":4288585374,\"tag2\":4278238420,\"tag3\":4291681337}"}'
+        type: string
+    type: object
+  api.AuditConnForm:
+    properties:
+      action:
+        type: string
+      conn_id:
+        type: integer
+      id:
+        type: string
+      ip:
+        type: string
+      peer:
+        items:
+          type: string
+        type: array
+      session_id:
+        type: number
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  api.AuditFileForm:
+    properties:
+      id:
+        type: string
+      info:
+        type: string
+      is_file:
+        type: boolean
+      path:
+        type: string
+      peer_id:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  api.DeviceInfoInLogin:
+    properties:
+      name:
+        type: string
+      os:
+        type: string
+      type:
+        type: string
+    type: object
+  api.LoginForm:
+    properties:
+      autoLogin:
+        type: boolean
+      deviceInfo:
+        $ref: '#/definitions/api.DeviceInfoInLogin'
+      id:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 4
+        type: string
+      type:
+        type: string
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+      uuid:
+        type: string
+    required:
+    - username
+    type: object
+  api.LoginRes:
+    properties:
+      access_token:
+        type: string
+      secret:
+        type: string
+      tfa_type:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/api.UserPayload'
+    type: object
+  api.PeerForm:
+    properties:
+      cpu:
+        type: string
+      hostname:
+        type: string
+      id:
+        type: string
+      memory:
+        type: string
+      os:
+        type: string
+      username:
+        type: string
+      uuid:
+        type: string
+      version:
+        type: string
+    type: object
+  api.UserPayload:
+    properties:
+      email:
+        type: string
+      info:
+        additionalProperties: true
+        type: object
+      is_admin:
+        type: boolean
+      name:
+        type: string
+      note:
+        type: string
+      status:
+        type: integer
+    type: object
+  model.AddressBookCollection:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - name
+    type: object
+  model.Tag:
+    properties:
+      collection:
+        $ref: '#/definitions/model.AddressBookCollection'
+      collection_id:
+        type: integer
+      color:
+        description: color 是flutter的颜色值,从0x00000000 到 0xFFFFFFFF; 前两位表示透明度，后面6位表示颜色,
+          可以转成rgba
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.TagList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.Tag'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.DataResponse:
+    properties:
+      data: {}
+      total:
+        type: integer
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: RustDesk API Server
+  title: RustDesk API
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Accueil
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Accueil
+      tags:
+      - Accueil
+  /ab:
+    get:
+      consumes:
+      - application/json
+      description: Liste d'adresses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Liste d'adresses
+      tags:
+      - Adresse
+    post:
+      consumes:
+      - application/json
+      description: Mise à jour d'adresse
+      parameters:
+      - description: Formulaire d'adresse
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "null"
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Mise à jour d'adresse
+      tags:
+      - Adresse
+  /ab/peer/add/{guid}:
+    delete:
+      consumes:
+      - application/json
+      description: Supprimer une adresse
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Supprimer une adresse
+      tags:
+      - Adresse [Personnel]
+    post:
+      consumes:
+      - application/json
+      description: Ajouter une adresse
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Ajouter une adresse
+      tags:
+      - Adresse [Personnel]
+  /ab/peer/update/{guid}:
+    put:
+      consumes:
+      - application/json
+      description: Mettre à jour l'adresse
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Mettre à jour l'adresse
+      tags:
+      - Adresse [Personnel]
+  /ab/peers:
+    post:
+      consumes:
+      - application/json
+      description: Adresse
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: current
+        type: integer
+      - description: Quantité par page
+        in: query
+        name: pageSize
+        type: integer
+      - description: guid
+        in: query
+        name: ab
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Liste d'adresses
+      tags:
+      - Adresse [Personnel]
+  /ab/personal:
+    post:
+      consumes:
+      - application/json
+      description: Adresse personnelle
+      parameters:
+      - description: string valid
+        in: body
+        name: string
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Adresse personnelle
+      tags:
+      - Adresse [Personnel]
+  /ab/settings:
+    post:
+      consumes:
+      - application/json
+      description: Paramètres
+      parameters:
+      - description: string valid
+        in: body
+        name: string
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Paramètres
+      tags:
+      - Adresse [Personnel]
+  /ab/shared/profiles:
+    post:
+      consumes:
+      - application/json
+      description: Partagé
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: current
+        type: integer
+      - description: Quantité par page
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Carnet d'adresses partagé
+      tags:
+      - Adresse [Personnel]
+  /ab/tag/{guid}:
+    delete:
+      consumes:
+      - application/json
+      description: Étiquette
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Supprimer une étiquette
+      tags:
+      - Adresse [Personnel]
+  /ab/tag/add/{guid}:
+    post:
+      consumes:
+      - application/json
+      description: Étiquette
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Ajouter une étiquette
+      tags:
+      - Adresse [Personnel]
+  /ab/tag/rename/{guid}:
+    put:
+      consumes:
+      - application/json
+      description: Étiquette
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Renommer une étiquette
+      tags:
+      - Adresse [Personnel]
+  /ab/tag/update/{guid}:
+    put:
+      consumes:
+      - application/json
+      description: Étiquette
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Modifier la couleur de l'étiquette
+      tags:
+      - Adresse [Personnel]
+  /ab/tags/{guid}:
+    post:
+      consumes:
+      - application/json
+      description: Étiquette
+      parameters:
+      - description: guid
+        in: path
+        name: guid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TagList'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Étiquette
+      tags:
+      - Adresse [Personnel]
+  /audit/conn:
+    post:
+      consumes:
+      - application/json
+      description: Audit de connexion
+      parameters:
+      - description: Audit de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuditConnForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Audit de connexion
+      tags:
+      - Audit
+  /audit/file:
+    post:
+      consumes:
+      - application/json
+      description: Audit de fichier
+      parameters:
+      - description: Audit de fichier
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuditFileForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Audit de fichier
+      tags:
+      - Audit
+  /currentUser:
+    get:
+      consumes:
+      - application/json
+      description: Informations utilisateur
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserPayload'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Informations utilisateur
+      tags:
+      - Utilisateur
+  /device-group/accessible:
+    get:
+      consumes:
+      - application/json
+      description: Appareil
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Quantité par page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Statut
+        in: query
+        name: status
+        type: integer
+      - description: accessible
+        in: query
+        name: accessible
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Appareil
+      tags:
+      - Groupe
+  /heartbeat:
+    post:
+      consumes:
+      - application/json
+      description: Battement de cœur
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Battement de cœur
+      tags:
+      - Accueil
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Connexion
+      parameters:
+      - description: Formulaire de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.LoginForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Connexion
+      tags:
+      - Connexion
+  /login-options:
+    get:
+      consumes:
+      - application/json
+      description: Options de connexion
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Options de connexion
+      tags:
+      - Connexion
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Déconnexion
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Déconnexion
+      tags:
+      - Connexion
+  /oidc/auth:
+    post:
+      consumes:
+      - application/json
+      description: OidcAuth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: OidcAuth
+      tags:
+      - Oauth
+  /oidc/auth-query:
+    get:
+      consumes:
+      - application/json
+      description: OidcAuthQuery
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: OidcAuthQuery
+      tags:
+      - Oauth
+  /oidc/callback:
+    get:
+      consumes:
+      - application/json
+      description: Rappel Oauth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Rappel Oauth
+      tags:
+      - Oauth
+  /peers:
+    get:
+      consumes:
+      - application/json
+      description: Machine
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Quantité par page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Statut
+        in: query
+        name: status
+        type: integer
+      - description: accessible
+        in: query
+        name: accessible
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Machine
+      tags:
+      - Groupe
+  /server-config:
+    get:
+      consumes:
+      - application/json
+      description: Configuration du service, fournit api-server au webclient
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Configuration du service
+      tags:
+      - WEBCLIENT
+  /server-config-v2:
+    get:
+      consumes:
+      - application/json
+      description: Configuration du service, fournit api-server au webclient
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Configuration du service
+      tags:
+      - WEBCLIENT_V2
+  /shared-peer:
+    post:
+      consumes:
+      - application/json
+      description: Appareil partagé
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Appareil partagé
+      tags:
+      - WEBCLIENT
+  /sysinfo:
+    post:
+      consumes:
+      - application/json
+      description: Soumettre les informations système
+      parameters:
+      - description: Formulaire d'informations système
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.PeerForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: SYSINFO_UPDATED,ID_NOT_FOUND
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Soumettre les informations système
+      tags:
+      - System
+  /sysinfo_ver:
+    post:
+      consumes:
+      - application/json
+      description: Obtenir les informations de version système
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Obtenir les informations de version système
+      tags:
+      - System
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Liste des utilisateurs
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Quantité par page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Statut
+        in: query
+        name: status
+        type: integer
+      - description: accessible
+        in: query
+        name: accessible
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.DataResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/api.UserPayload'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Liste des utilisateurs
+      tags:
+      - Groupe
+  /version:
+    get:
+      consumes:
+      - application/json
+      description: Version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Version
+      tags:
+      - Accueil
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  token:
+    in: header
+    name: api-token
+    type: apiKey
+swagger: "2.0"

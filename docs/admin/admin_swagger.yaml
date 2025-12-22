@@ -1,0 +1,4035 @@
+basePath: /api
+definitions:
+  admin.AddressBookForm:
+    properties:
+      alias:
+        type: string
+      collection_id:
+        type: integer
+      forceAlwaysRelay:
+        type: boolean
+      hash:
+        type: string
+      hostname:
+        type: string
+      id:
+        type: string
+      loginName:
+        type: string
+      online:
+        type: boolean
+      password:
+        type: string
+      platform:
+        type: string
+      rdpPort:
+        type: string
+      rdpUsername:
+        type: string
+      row_id:
+        type: integer
+      sameServer:
+        type: boolean
+      tags:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: integer
+      user_ids:
+        items:
+          type: integer
+        type: array
+      username:
+        type: string
+    required:
+    - id
+    type: object
+  admin.AuditConnLogIds:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - ids
+    type: object
+  admin.AuditFileLogIds:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - ids
+    type: object
+  admin.ChangeCurPasswordForm:
+    properties:
+      new_password:
+        maxLength: 32
+        minLength: 4
+        type: string
+      old_password:
+        maxLength: 32
+        minLength: 4
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  admin.DeviceGroupForm:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  admin.GroupForm:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        type: integer
+    required:
+    - name
+    type: object
+  admin.LoginLogIds:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - ids
+    type: object
+  admin.LoginPayload:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      nickname:
+        type: string
+      route_names:
+        items:
+          type: string
+        type: array
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  admin.OauthForm:
+    properties:
+      auto_register:
+        type: boolean
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      id:
+        type: integer
+      issuer:
+        type: string
+      oauth_type:
+        type: string
+      op:
+        type: string
+      pkce_enable:
+        type: boolean
+      pkce_method:
+        type: string
+      scopes:
+        type: string
+    required:
+    - client_id
+    - client_secret
+    - oauth_type
+    type: object
+  admin.PeerBatchDeleteForm:
+    properties:
+      row_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - row_ids
+    type: object
+  admin.PeerForm:
+    properties:
+      alias:
+        type: string
+      cpu:
+        type: string
+      group_id:
+        type: integer
+      hostname:
+        type: string
+      id:
+        type: string
+      memory:
+        type: string
+      os:
+        type: string
+      row_id:
+        type: integer
+      username:
+        type: string
+      uuid:
+        type: string
+      version:
+        type: string
+    type: object
+  admin.PeerShareRecordBatchDeleteForm:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - ids
+    type: object
+  admin.ShareByWebClientForm:
+    properties:
+      expire:
+        type: integer
+      id:
+        type: string
+      password:
+        type: string
+      password_type:
+        description: 只能是once,fixed
+        enum:
+        - once
+        - fixed
+        type: string
+    required:
+    - id
+    - password
+    - password_type
+    type: object
+  admin.ShareRecordForm:
+    properties:
+      id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  admin.TagForm:
+    properties:
+      collection_id:
+        type: integer
+      color:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - color
+    - name
+    type: object
+  admin.UserForm:
+    properties:
+      avatar:
+        type: string
+      email:
+        description: validate:"required,email" email不强制
+        type: string
+      group_id:
+        type: integer
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      nickname:
+        description: Password string           `json:"password" validate:"required,gte=4,lte=20"`
+        type: string
+      remark:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/model.StatusCode'
+        minimum: 0
+      username:
+        maxLength: 32
+        minLength: 2
+        type: string
+    required:
+    - group_id
+    - status
+    - username
+    type: object
+  admin.UserOauthItem:
+    properties:
+      op:
+        type: string
+      status:
+        type: integer
+    type: object
+  admin.UserPasswordForm:
+    properties:
+      id:
+        type: integer
+      password:
+        maxLength: 32
+        minLength: 4
+        type: string
+    required:
+    - id
+    - password
+    type: object
+  admin.UserTokenBatchDeleteForm:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - ids
+    type: object
+  github_com_RobertLesgros_rustdesk-api_v2_http_request_admin.Login:
+    properties:
+      captcha:
+        type: string
+      captcha_id:
+        type: string
+      password:
+        type: string
+      platform:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.AddressBook:
+    properties:
+      alias:
+        type: string
+      collection:
+        $ref: '#/definitions/model.AddressBookCollection'
+      collection_id:
+        type: integer
+      created_at:
+        type: string
+      forceAlwaysRelay:
+        type: boolean
+      hash:
+        type: string
+      hostname:
+        type: string
+      id:
+        type: string
+      loginName:
+        type: string
+      online:
+        type: boolean
+      password:
+        type: string
+      platform:
+        type: string
+      rdpPort:
+        type: string
+      rdpUsername:
+        type: string
+      row_id:
+        type: integer
+      sameServer:
+        type: boolean
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  model.AddressBookCollection:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - name
+    type: object
+  model.AddressBookCollectionList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.AddressBookCollection'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.AddressBookCollectionRule:
+    properties:
+      collection_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      rule:
+        description: '0: 无 1: 读 2: 读写  3: 完全控制'
+        maximum: 3
+        minimum: 1
+        type: integer
+      to_id:
+        type: integer
+      type:
+        description: '1: 个人 2: 群组'
+        maximum: 2
+        minimum: 1
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - collection_id
+    - rule
+    - to_id
+    - type
+    type: object
+  model.AddressBookList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.AddressBook'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.AuditConn:
+    properties:
+      action:
+        type: string
+      close_time:
+        type: integer
+      conn_id:
+        type: integer
+      created_at:
+        type: string
+      from_name:
+        type: string
+      from_peer:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      peer_id:
+        type: string
+      session_id:
+        type: string
+      type:
+        type: integer
+      updated_at:
+        type: string
+      uuid:
+        type: string
+    type: object
+  model.AuditConnList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.AuditConn'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.AuditFile:
+    properties:
+      created_at:
+        type: string
+      from_name:
+        type: string
+      from_peer:
+        type: string
+      id:
+        type: integer
+      info:
+        type: string
+      ip:
+        type: string
+      is_file:
+        type: boolean
+      num:
+        type: integer
+      path:
+        type: string
+      peer_id:
+        type: string
+      type:
+        type: integer
+      updated_at:
+        type: string
+      uuid:
+        type: string
+    type: object
+  model.AuditFileList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.AuditFile'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.DeviceGroup:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.Group:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.GroupList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.Group'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.LoginLog:
+    properties:
+      client:
+        description: webadmin,webclient,app,
+        type: string
+      created_at:
+        type: string
+      device_id:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      is_deleted:
+        type: integer
+      platform:
+        description: windows,linux,mac,android,ios
+        type: string
+      type:
+        description: account,oauth
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      user_token_id:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  model.LoginLogList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.LoginLog'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.Oauth:
+    properties:
+      auto_register:
+        description: RedirectUrl  string `json:"redirect_url"`
+        type: boolean
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      issuer:
+        type: string
+      oauth_type:
+        type: string
+      op:
+        type: string
+      pkce_enable:
+        type: boolean
+      pkce_method:
+        type: string
+      scopes:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.OauthList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.Oauth'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.Peer:
+    properties:
+      alias:
+        type: string
+      cpu:
+        type: string
+      created_at:
+        type: string
+      group_id:
+        type: integer
+      hostname:
+        type: string
+      id:
+        type: string
+      last_online_ip:
+        type: string
+      last_online_time:
+        type: integer
+      memory:
+        type: string
+      os:
+        type: string
+      row_id:
+        type: integer
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      user_id:
+        type: integer
+      username:
+        type: string
+      uuid:
+        type: string
+      version:
+        type: string
+    type: object
+  model.PeerList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.Peer'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.StatusCode:
+    enum:
+    - 1
+    - 2
+    type: integer
+    x-enum-comments:
+      COMMON_STATUS_DISABLED: 通用状态 禁用
+      COMMON_STATUS_ENABLE: 通用状态 启用
+    x-enum-descriptions:
+    - 通用状态 启用
+    - 通用状态 禁用
+    x-enum-varnames:
+    - COMMON_STATUS_ENABLE
+    - COMMON_STATUS_DISABLED
+  model.Tag:
+    properties:
+      collection:
+        $ref: '#/definitions/model.AddressBookCollection'
+      collection_id:
+        type: integer
+      color:
+        description: color 是flutter的颜色值,从0x00000000 到 0xFFFFFFFF; 前两位表示透明度，后面6位表示颜色,
+          可以转成rgba
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.TagList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.Tag'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      group_id:
+        type: integer
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      nickname:
+        type: string
+      remark:
+        type: string
+      status:
+        $ref: '#/definitions/model.StatusCode'
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.UserToken:
+    properties:
+      created_at:
+        type: string
+      device_id:
+        type: string
+      device_uuid:
+        type: string
+      expired_at:
+        type: integer
+      id:
+        type: integer
+      token:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.UserTokenList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.UserToken'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: RustDesk API Server
+  title: RustDesk API
+  version: "1.0"
+paths:
+  /admin/address_book/batchCreate:
+    post:
+      consumes:
+      - application/json
+      description: Création par lot de carnets d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBook'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Création par lot de carnets d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer un carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBook'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer un carnet d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer le carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer le carnet d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails du carnet d'adresses
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBook'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails du carnet d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des carnets d'adresses
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      - description: Est-ce le mien
+        in: query
+        name: is_my
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des carnets d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book/share:
+    post:
+      consumes:
+      - application/json
+      description: Partager le carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ShareByWebClientForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Partager le carnet d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier le carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBook'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier le carnet d'adresses
+      tags:
+      - Carnet d'adresses
+  /admin/address_book_collection/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer une collection
+      parameters:
+      - description: Informations sur la collection
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer une collection
+      tags:
+      - Collection de carnets d'adresses
+  /admin/address_book_collection/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer la collection
+      parameters:
+      - description: Informations sur la collection
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer la collection
+      tags:
+      - Collection de carnets d'adresses
+  /admin/address_book_collection/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails de la collection
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails de la collection
+      tags:
+      - Collection de carnets d'adresses
+  /admin/address_book_collection/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des collections
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Est-ce le mien
+        in: query
+        name: is_my
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollectionList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des collections
+      tags:
+      - Collection de carnets d'adresses
+  /admin/address_book_collection/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier la collection
+      parameters:
+      - description: Informations sur la collection
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier la collection
+      tags:
+      - Collection de carnets d'adresses
+  /admin/address_book_collection_rule/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer une règle
+      parameters:
+      - description: Informations sur la règle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollectionRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer une règle
+      tags:
+      - Règles du carnet d'adresses
+  /admin/address_book_collection_rule/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer la règle
+      parameters:
+      - description: Informations sur la règle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollectionRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer la règle
+      tags:
+      - Règles du carnet d'adresses
+  /admin/address_book_collection_rule/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails de la règle
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollectionRule'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails de la règle
+      tags:
+      - Règles du carnet d'adresses
+  /admin/address_book_collection_rule/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des règles
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Est-ce le mien
+        in: query
+        name: is_my
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      - description: ID de la collection
+        in: query
+        name: collection_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollectionList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des règles
+      tags:
+      - Règles du carnet d'adresses
+  /admin/address_book_collection_rule/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier la règle
+      parameters:
+      - description: Informations sur la règle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollectionRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier la règle
+      tags:
+      - Règles du carnet d'adresses
+  /admin/audit_conn/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot des journaux de connexion
+      parameters:
+      - description: Journaux de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AuditConnLogIds'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot des journaux de connexion
+      tags:
+      - Journaux de connexion
+  /admin/audit_conn/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer un journal de connexion
+      parameters:
+      - description: Informations sur le journal de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuditConn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer un journal de connexion
+      tags:
+      - Journaux de connexion
+  /admin/audit_conn/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des journaux de connexion
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Appareil cible
+        in: query
+        name: peer_id
+        type: integer
+      - description: Appareil source
+        in: query
+        name: from_peer
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AuditConnList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des journaux de connexion
+      tags:
+      - Journaux de connexion
+  /admin/audit_file/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot des journaux de fichiers
+      parameters:
+      - description: Journaux de fichiers
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AuditFileLogIds'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot des journaux de fichiers
+      tags:
+      - Journaux de fichiers
+  /admin/audit_file/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer un journal de fichier
+      parameters:
+      - description: Informations sur le journal de fichier
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuditFile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer un journal de fichier
+      tags:
+      - Journaux de fichiers
+  /admin/audit_file/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des journaux de fichiers
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Appareil cible
+        in: query
+        name: peer_id
+        type: integer
+      - description: Appareil source
+        in: query
+        name: from_peer
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AuditFileList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des journaux de fichiers
+      tags:
+      - Journaux de fichiers
+  /admin/config/admin:
+    get:
+      consumes:
+      - application/json
+      description: Configuration du service ADMIN
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Configuration du service ADMIN
+      tags:
+      - ADMIN
+  /admin/config/app:
+    get:
+      consumes:
+      - application/json
+      description: Configuration du service APP
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Configuration du service APP
+      tags:
+      - ADMIN
+  /admin/config/server:
+    get:
+      consumes:
+      - application/json
+      description: Configuration du service, fournit api-server au webclient
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Configuration du service RUSTDESK
+      tags:
+      - ADMIN
+  /admin/device_group/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer un groupe de périphériques
+      parameters:
+      - description: Informations sur le groupe de périphériques
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.DeviceGroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.DeviceGroup'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer un groupe de périphériques
+      tags:
+      - Groupe de périphériques
+  /admin/device_group/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer le groupe de périphériques
+      parameters:
+      - description: Informations sur le groupe
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.DeviceGroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer le groupe de périphériques
+      tags:
+      - Groupe de périphériques
+  /admin/device_group/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails du groupe de périphériques
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Group'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails du groupe de périphériques
+      tags:
+      - Groupe de périphériques
+  /admin/device_group/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des groupes
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GroupList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des groupes
+      tags:
+      - Groupe
+  /admin/device_group/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier le groupe de périphériques
+      parameters:
+      - description: Informations sur le groupe
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.DeviceGroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Group'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier le groupe de périphériques
+      tags:
+      - Groupe de périphériques
+  /admin/file/oss_token:
+    get:
+      consumes:
+      - application/json
+      description: Get OSS token for file upload
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Get OSS token
+      tags:
+      - File
+  /admin/file/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload file to local storage
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Upload file to local storage
+      tags:
+      - File
+  /admin/group/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer un groupe
+      parameters:
+      - description: Informations sur le groupe
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.GroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Group'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer un groupe
+      tags:
+      - Groupe
+  /admin/group/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer le groupe
+      parameters:
+      - description: Informations sur le groupe
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.GroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer le groupe
+      tags:
+      - Groupe
+  /admin/group/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails du groupe
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Group'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails du groupe
+      tags:
+      - Groupe
+  /admin/group/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des groupes
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GroupList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des groupes
+      tags:
+      - Groupe
+  /admin/group/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier le groupe
+      parameters:
+      - description: Informations sur le groupe
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.GroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Group'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier le groupe
+      tags:
+      - Groupe
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Connexion
+      parameters:
+      - description: Informations de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_RobertLesgros_rustdesk-api_v2_http_request_admin.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/admin.LoginPayload'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Connexion
+      tags:
+      - Connexion
+  /admin/login-options:
+    post:
+      consumes:
+      - application/json
+      description: Options de connexion
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Options de connexion
+      tags:
+      - Connexion
+  /admin/login_log/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot des journaux de connexion
+      parameters:
+      - description: Journaux de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.LoginLogIds'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot des journaux de connexion
+      tags:
+      - Journal de connexion
+  /admin/login_log/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer un journal de connexion
+      parameters:
+      - description: Informations sur le journal de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginLog'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer un journal de connexion
+      tags:
+      - Journal de connexion
+  /admin/login_log/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails du journal de connexion
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LoginLog'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails du journal de connexion
+      tags:
+      - Journal de connexion
+  /admin/login_log/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des journaux de connexion
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LoginLogList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des journaux de connexion
+      tags:
+      - Journal de connexion
+  /admin/logout:
+    post:
+      consumes:
+      - application/json
+      description: Déconnexion
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Déconnexion
+      tags:
+      - Connexion
+  /admin/my/address_book/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer un carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBook'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer un carnet d'adresses
+      tags:
+      - Mon carnet d'adresses
+  /admin/my/address_book/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer le carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer le carnet d'adresses
+      tags:
+      - Mon carnet d'adresses
+  /admin/my/address_book/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste du carnet d'adresses
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste du carnet d'adresses
+      tags:
+      - Mon carnet d'adresses
+  /admin/my/address_book/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier le carnet d'adresses
+      parameters:
+      - description: Informations sur le carnet d'adresses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AddressBookForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBook'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier le carnet d'adresses
+      tags:
+      - Mon carnet d'adresses
+  /admin/my/address_book_collection/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer une collection
+      parameters:
+      - description: Informations sur la collection
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer une collection
+      tags:
+      - Ma collection
+  /admin/my/address_book_collection/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer la collection
+      parameters:
+      - description: Informations sur la collection
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer la collection
+      tags:
+      - Ma collection
+  /admin/my/address_book_collection/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des collections
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollectionList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des collections
+      tags:
+      - Ma collection
+  /admin/my/address_book_collection/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier la collection
+      parameters:
+      - description: Informations sur la collection
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier la collection
+      tags:
+      - Ma collection
+  /admin/my/address_book_collection_rule/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer une règle
+      parameters:
+      - description: Informations sur la règle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollectionRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer une règle
+      tags:
+      - Mes règles de carnet d'adresses
+  /admin/my/address_book_collection_rule/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer la règle
+      parameters:
+      - description: Informations sur la règle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollectionRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer la règle
+      tags:
+      - Mes règles de carnet d'adresses
+  /admin/my/address_book_collection_rule/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des règles
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Est-ce le mien
+        in: query
+        name: is_my
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      - description: ID de la collection
+        in: query
+        name: collection_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollectionList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des règles
+      tags:
+      - Mes règles de carnet d'adresses
+  /admin/my/address_book_collection_rule/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier la règle
+      parameters:
+      - description: Informations sur la règle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressBookCollectionRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AddressBookCollection'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier la règle
+      tags:
+      - Mes règles de carnet d'adresses
+  /admin/my/login_log/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot des journaux de connexion
+      parameters:
+      - description: Journaux de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.LoginLogIds'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot des journaux de connexion
+      tags:
+      - Mon journal de connexion
+  /admin/my/login_log/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer un journal de connexion
+      parameters:
+      - description: Informations sur le journal de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginLog'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer un journal de connexion
+      tags:
+      - Mon journal de connexion
+  /admin/my/login_log/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des journaux de connexion
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LoginLogList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des journaux de connexion
+      tags:
+      - Mon journal de connexion
+  /admin/my/peer/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des appareils
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Temps
+        in: query
+        name: time_ago
+        type: integer
+      - description: ID
+        in: query
+        name: id
+        type: string
+      - description: Nom d'hôte
+        in: query
+        name: hostname
+        type: string
+      - description: uuids séparés par des virgules
+        in: query
+        name: uuids
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PeerList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des appareils
+      tags:
+      - Mes appareils
+  /admin/my/share_record/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot de mes enregistrements de partage
+      parameters:
+      - description: id
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.PeerShareRecordBatchDeleteForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot de mes enregistrements de partage
+      tags:
+      - Mes
+  /admin/my/share_record/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer un enregistrement de partage
+      parameters:
+      - description: Informations sur l'enregistrement de partage
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ShareRecordForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer un enregistrement de partage
+      tags:
+      - Mes enregistrements de partage
+  /admin/my/share_record/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des enregistrements de partage
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des enregistrements de partage
+      tags:
+      - Mes enregistrements de partage
+  /admin/my/tag/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer une étiquette
+      parameters:
+      - description: Informations sur l'étiquette
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.TagForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer une étiquette
+      tags:
+      - Mes étiquettes
+  /admin/my/tag/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer l'étiquette
+      parameters:
+      - description: Informations sur l'étiquette
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.TagForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer l'étiquette
+      tags:
+      - Mes étiquettes
+  /admin/my/tag/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des étiquettes
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Est-ce le mien
+        in: query
+        name: is_my
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TagList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des étiquettes
+      tags:
+      - Mes étiquettes
+  /admin/my/tag/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier l'étiquette
+      parameters:
+      - description: Informations sur l'étiquette
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.TagForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier l'étiquette
+      tags:
+      - Mes étiquettes
+  /admin/oauth/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer Oauth
+      parameters:
+      - description: Informations Oauth
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OauthForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Oauth'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer Oauth
+      tags:
+      - Oauth
+  /admin/oauth/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer Oauth
+      parameters:
+      - description: Informations Oauth
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OauthForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer Oauth
+      tags:
+      - Oauth
+  /admin/oauth/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails Oauth
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Oauth'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails Oauth
+      tags:
+      - Oauth
+  /admin/oauth/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste Oauth
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.OauthList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste Oauth
+      tags:
+      - Oauth
+  /admin/oauth/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier Oauth
+      parameters:
+      - description: Informations Oauth
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OauthForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.OauthList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier Oauth
+      tags:
+      - Oauth
+  /admin/oidc/auth:
+    post:
+      consumes:
+      - application/json
+      description: OidcAuth
+      produces:
+      - application/json
+      responses: {}
+      summary: OidcAuth
+      tags:
+      - Oauth
+  /admin/oidc/auth-query:
+    get:
+      consumes:
+      - application/json
+      description: OidcAuthQuery
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/admin.LoginPayload'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: OidcAuthQuery
+      tags:
+      - Oauth
+  /admin/peer/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot d'appareils
+      parameters:
+      - description: ID de l'appareil
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.PeerBatchDeleteForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot d'appareils
+      tags:
+      - Appareil
+  /admin/peer/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer un appareil
+      parameters:
+      - description: Informations sur l'appareil
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.PeerForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Peer'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer un appareil
+      tags:
+      - Appareil
+  /admin/peer/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer l'appareil
+      parameters:
+      - description: Informations sur l'appareil
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.PeerForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer l'appareil
+      tags:
+      - Appareil
+  /admin/peer/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails de l'appareil
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Peer'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails de l'appareil
+      tags:
+      - Appareil
+  /admin/peer/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des appareils
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Temps
+        in: query
+        name: time_ago
+        type: integer
+      - description: ID
+        in: query
+        name: id
+        type: string
+      - description: Nom d'hôte
+        in: query
+        name: hostname
+        type: string
+      - description: uuids séparés par des virgules
+        in: query
+        name: uuids
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.PeerList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des appareils
+      tags:
+      - Appareil
+  /admin/peer/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier l'appareil
+      parameters:
+      - description: Informations sur l'appareil
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.PeerForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Peer'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier l'appareil
+      tags:
+      - Appareil
+  /admin/share_record/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot des enregistrements de partage
+      parameters:
+      - description: id
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.PeerShareRecordBatchDeleteForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot des enregistrements de partage
+      tags:
+      - Enregistrements de partage
+  /admin/share_record/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer un enregistrement de partage
+      parameters:
+      - description: Informations sur l'enregistrement de partage
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ShareRecordForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer un enregistrement de partage
+      tags:
+      - Enregistrements de partage
+  /admin/share_record/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des enregistrements de partage
+      parameters:
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des enregistrements de partage
+      tags:
+      - Enregistrements de partage
+  /admin/tag/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer une étiquette
+      parameters:
+      - description: Informations sur l'étiquette
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.TagForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer une étiquette
+      tags:
+      - Étiquette
+  /admin/tag/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer l'étiquette
+      parameters:
+      - description: Informations sur l'étiquette
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.TagForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer l'étiquette
+      tags:
+      - Étiquette
+  /admin/tag/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails de l'étiquette
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails de l'étiquette
+      tags:
+      - Étiquette
+  /admin/tag/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des étiquettes
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Est-ce le mien
+        in: query
+        name: is_my
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TagList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des étiquettes
+      tags:
+      - Étiquette
+  /admin/tag/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier l'étiquette
+      parameters:
+      - description: Informations sur l'étiquette
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.TagForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier l'étiquette
+      tags:
+      - Étiquette
+  /admin/user/changeCurPwd:
+    post:
+      consumes:
+      - application/json
+      description: Modifier le mot de passe actuel
+      parameters:
+      - description: Informations sur l'utilisateur
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ChangeCurPasswordForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier le mot de passe actuel
+      tags:
+      - Utilisateur
+  /admin/user/create:
+    post:
+      consumes:
+      - application/json
+      description: Créer un utilisateur
+      parameters:
+      - description: Informations sur l'utilisateur
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Créer un utilisateur
+      tags:
+      - Utilisateur
+  /admin/user/current:
+    get:
+      consumes:
+      - application/json
+      description: Utilisateur actuel
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/admin.LoginPayload'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Utilisateur actuel
+      tags:
+      - Utilisateur
+  /admin/user/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer l'utilisateur
+      parameters:
+      - description: Informations sur l'utilisateur
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer l'utilisateur
+      tags:
+      - Utilisateur
+  /admin/user/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Détails de l'utilisateur
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Détails de l'utilisateur
+      tags:
+      - Utilisateur
+  /admin/user/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des utilisateurs
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: Compte
+        in: query
+        name: username
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des utilisateurs
+      tags:
+      - Utilisateur
+  /admin/user/myOauth:
+    get:
+      consumes:
+      - application/json
+      description: Mes autorisations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/admin.UserOauthItem'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Mes autorisations
+      tags:
+      - Utilisateur
+  /admin/user/update:
+    post:
+      consumes:
+      - application/json
+      description: Modifier l'utilisateur
+      parameters:
+      - description: Informations sur l'utilisateur
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.User'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier l'utilisateur
+      tags:
+      - Utilisateur
+  /admin/user/updatePassword:
+    post:
+      consumes:
+      - application/json
+      description: Modifier le mot de passe
+      parameters:
+      - description: Informations sur l'utilisateur
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UserPasswordForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Modifier le mot de passe
+      tags:
+      - Utilisateur
+  /admin/user_token/batchDelete:
+    post:
+      consumes:
+      - application/json
+      description: Suppression par lot des jetons de connexion
+      parameters:
+      - description: Informations sur le jeton de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.UserTokenBatchDeleteForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Suppression par lot des jetons de connexion
+      tags:
+      - Jeton de connexion
+  /admin/user_token/delete:
+    post:
+      consumes:
+      - application/json
+      description: Supprimer le jeton de connexion
+      parameters:
+      - description: Informations sur le jeton de connexion
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Supprimer le jeton de connexion
+      tags:
+      - Jeton de connexion
+  /admin/user_token/list:
+    get:
+      consumes:
+      - application/json
+      description: Liste des jetons de connexion
+      parameters:
+      - description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      - description: Taille de la page
+        in: query
+        name: page_size
+        type: integer
+      - description: ID utilisateur
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserTokenList'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - token: []
+      summary: Liste des jetons de connexion
+      tags:
+      - Jeton de connexion
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  token:
+    in: header
+    name: api-token
+    type: apiKey
+swagger: "2.0"

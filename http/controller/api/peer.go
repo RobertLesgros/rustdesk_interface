@@ -1,0 +1,76 @@
+package api
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	requstform "github.com/RobertLesgros/rustdesk-api/v2/http/request/api"
+	"github.com/RobertLesgros/rustdesk-api/v2/http/response"
+	"github.com/RobertLesgros/rustdesk-api/v2/service"
+	"net/http"
+)
+
+type Peer struct {
+}
+
+// SysInfo
+// @Tags System
+// @Summary Soumettre les informations système
+// @Description Soumettre les informations système
+// @Accept  json
+// @Produce  json
+// @Param body body requstform.PeerForm true "Formulaire d'informations système"
+// @Success 200 {string} string "SYSINFO_UPDATED,ID_NOT_FOUND"
+// @Failure 500 {object} response.ErrorResponse
+// @Router /sysinfo [post]
+func (p *Peer) SysInfo(c *gin.Context) {
+	f := &requstform.PeerForm{}
+	err := c.ShouldBindBodyWith(f, binding.JSON)
+	if err != nil {
+		response.Error(c, response.TranslateMsg(c, "ParamsError")+err.Error())
+		return
+	}
+	fpe := f.ToPeer()
+	pe := service.AllService.PeerService.FindById(f.Id)
+	if pe.RowId == 0 {
+		pe = f.ToPeer()
+		pe.UserId = service.AllService.UserService.FindLatestUserIdFromLoginLogByUuid(pe.Uuid, pe.Id)
+		err = service.AllService.PeerService.Create(pe)
+		if err != nil {
+			response.Error(c, response.TranslateMsg(c, "OperationFailed")+err.Error())
+			return
+		}
+	} else {
+		if pe.UserId == 0 {
+			pe.UserId = service.AllService.UserService.FindLatestUserIdFromLoginLogByUuid(pe.Uuid, pe.Id)
+		}
+		fpe.RowId = pe.RowId
+		fpe.UserId = pe.UserId
+		err = service.AllService.PeerService.Update(fpe)
+		if err != nil {
+			response.Error(c, response.TranslateMsg(c, "OperationFailed")+err.Error())
+			return
+		}
+	}
+	//SYSINFO_UPDATED Téléchargement réussi
+	//ID_NOT_FOUND Sera téléchargé au prochain battement de cœur
+	// Répondre directement avec du texte
+	c.String(http.StatusOK, "SYSINFO_UPDATED")
+}
+
+// SysInfoVer
+// @Tags System
+// @Summary Obtenir les informations de version système
+// @Description Obtenir les informations de version système
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string ""
+// @Failure 500 {object} response.ErrorResponse
+// @Router /sysinfo_ver [post]
+func (p *Peer) SysInfoVer(c *gin.Context) {
+	// Lire le fichier resources/version
+	v := service.AllService.AppService.GetAppVersion()
+	// Ajouter l'heure de démarrage pour faciliter le téléchargement des informations client
+	v = fmt.Sprintf("%s\n%s", v, service.AllService.AppService.GetStartTime())
+	c.String(http.StatusOK, v)
+}
