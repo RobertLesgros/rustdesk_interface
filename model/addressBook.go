@@ -1,6 +1,6 @@
 package model
 
-import "github.com/RobertLesgros/rustdesk-api/v2/model/custom_types"
+import "github.com/RobertLesgros/rustdesk-interface/v2/model/custom_types"
 
 // final String id;
 // String hash; // personal ab hash password

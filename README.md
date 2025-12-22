@@ -100,8 +100,8 @@ Cette version inclut plusieurs corrections de sécurité critiques :
 
 ```bash
 # Cloner le dépôt
-git clone https://github.com/votre-repo/rustdesk-api.git
-cd rustdesk-api
+git clone https://github.com/votre-repo/rustdesk-interface.git
+cd rustdesk-interface
 
 # Compiler
 go mod tidy
@@ -115,7 +115,7 @@ go build -o apimain cmd/apimain.go
 
 ```bash
 # Construire l'image
-docker build -f Dockerfile.dev -t rustdesk-api:latest .
+docker build -f Dockerfile.dev -t rustdesk-interface:latest .
 
 # Lancer avec docker-compose
 docker-compose up -d

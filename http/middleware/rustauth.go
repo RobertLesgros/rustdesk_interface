@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/global"
-	"github.com/RobertLesgros/rustdesk-api/v2/service"
+	"github.com/RobertLesgros/rustdesk-interface/v2/global"
+	"github.com/RobertLesgros/rustdesk-interface/v2/service"
 )
 
 func RustAuth() gin.HandlerFunc {

@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/global"
-	"github.com/RobertLesgros/rustdesk-api/v2/http/controller/api"
-	"github.com/RobertLesgros/rustdesk-api/v2/http/request/admin"
-	apiReq "github.com/RobertLesgros/rustdesk-api/v2/http/request/api"
-	"github.com/RobertLesgros/rustdesk-api/v2/http/response"
-	adResp "github.com/RobertLesgros/rustdesk-api/v2/http/response/admin"
-	"github.com/RobertLesgros/rustdesk-api/v2/lib/audit"
-	"github.com/RobertLesgros/rustdesk-api/v2/model"
-	"github.com/RobertLesgros/rustdesk-api/v2/service"
+	"github.com/RobertLesgros/rustdesk-interface/v2/global"
+	"github.com/RobertLesgros/rustdesk-interface/v2/http/controller/api"
+	"github.com/RobertLesgros/rustdesk-interface/v2/http/request/admin"
+	apiReq "github.com/RobertLesgros/rustdesk-interface/v2/http/request/api"
+	"github.com/RobertLesgros/rustdesk-interface/v2/http/response"
+	adResp "github.com/RobertLesgros/rustdesk-interface/v2/http/response/admin"
+	"github.com/RobertLesgros/rustdesk-interface/v2/lib/audit"
+	"github.com/RobertLesgros/rustdesk-interface/v2/model"
+	"github.com/RobertLesgros/rustdesk-interface/v2/service"
 )
 
 type Login struct {

@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/http/response"
-	"github.com/RobertLesgros/rustdesk-api/v2/service"
+	"github.com/RobertLesgros/rustdesk-interface/v2/http/response"
+	"github.com/RobertLesgros/rustdesk-interface/v2/service"
 )
 
 // BackendUserAuth 后台权限验证中间件

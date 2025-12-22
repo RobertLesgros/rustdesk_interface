@@ -8,8 +8,8 @@ desktop software that provides self-hosted solutions.
 <img src="https://img.shields.io/badge/gin-v1.9.0-lightBlue"/>
 <img src="https://img.shields.io/badge/gorm-v1.25.7-green"/>
 <img src="https://img.shields.io/badge/swag-v1.16.3-yellow"/>
-<img src="https://goreportcard.com/badge/github.com/lejianwen/rustdesk-api/v2"/>
-<img src="https://github.com/lejianwen/rustdesk-api/actions/workflows/build.yml/badge.svg"/>
+<img src="https://goreportcard.com/badge/github.com/lejianwen/rustdesk-interface/v2"/>
+<img src="https://github.com/lejianwen/rustdesk-interface/actions/workflows/build.yml/badge.svg"/>
 </div>
 
 ## Better used with [lejianwen/rustdesk-server].
@@ -45,7 +45,7 @@ desktop software that provides self-hosted solutions.
     - Quick access to web client
     - i18n
     - Share to guest by web client
-    - Server control (some simple official commands [WIKI](https://github.com/lejianwen/rustdesk-api/wiki/Rustdesk-Command))
+    - Server control (some simple official commands [WIKI](https://github.com/lejianwen/rustdesk-interface/wiki/Rustdesk-Command))
 - Web Client
     - Automatically obtain API server
     - Automatically obtain ID server and KEY
@@ -79,7 +79,7 @@ Basic implementation of the PC client's primary interfaces.Supports the Personal
 ### Web Admin
 
 * The frontend and backend are separated to provide a user-friendly management interface, primarily for managing and
-displaying data.Frontend code is available at [rustdesk-api-web](https://github.com/lejianwen/rustdesk-api-web)
+displaying data.Frontend code is available at [rustdesk-interface-web](https://github.com/lejianwen/rustdesk-interface-web)
 
 * Admin panel URL: `http://<your server[:port]>/_admin/`
 * For the initial installation, the admin username is `admin`, and the password will be printed in the console. You can change the password via the [command line](#CLI).
@@ -116,7 +116,7 @@ displaying data.Frontend code is available at [rustdesk-api-web](https://github.
     * Custom commands can be added
     * Custom commands can be executed
 
-11. **LDAP Support**, When you setup the LDAP(test for OpenLDAP and AD), you can login with the LDAP's user. https://github.com/lejianwen/rustdesk-api/issues/114 , if LDAP fail fallback local user
+11. **LDAP Support**, When you setup the LDAP(test for OpenLDAP and AD), you can login with the LDAP's user. https://github.com/lejianwen/rustdesk-interface/issues/114 , if LDAP fail fallback local user
   
 ### Web Client:
 
@@ -209,28 +209,28 @@ The table below does not list all configurations. Please refer to the configurat
    using environment variables to override settings.
     
     ```bash
-    docker run -d --name rustdesk-api -p 21114:21114 \
+    docker run -d --name rustdesk-interface -p 21114:21114 \
     -v /data/rustdesk/api:/app/data \
     -e RUSTDESK_API_LANG=en \
     -e RUSTDESK_API_RUSTDESK_ID_SERVER=192.168.1.66:21116 \
     -e RUSTDESK_API_RUSTDESK_RELAY_SERVER=192.168.1.66:21117 \
     -e RUSTDESK_API_RUSTDESK_API_SERVER=http://192.168.1.66:21114 \
     -e RUSTDESK_API_RUSTDESK_KEY=abc123456 \
-    lejianwen/rustdesk-api
+    lejianwen/rustdesk-interface
     ```
 
-2. Using `docker-compose`,look [WIKI](https://github.com/lejianwen/rustdesk-api/wiki)
+2. Using `docker-compose`,look [WIKI](https://github.com/lejianwen/rustdesk-interface/wiki)
 
 #### Running from Release
 
-Download the release from [release](https://github.com/lejianwen/rustdesk-api/releases).
+Download the release from [release](https://github.com/lejianwen/rustdesk-interface/releases).
 
 #### Source Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/lejianwen/rustdesk-api.git
-   cd rustdesk-api
+   git clone https://github.com/lejianwen/rustdesk-interface.git
+   cd rustdesk-interface
    ```
 
 2. Install dependencies:
@@ -242,12 +242,12 @@ Download the release from [release](https://github.com/lejianwen/rustdesk-api/re
     ```
 
 3. Build the admin front-end (the front-end code is
-   in [rustdesk-api-web](https://github.com/lejianwen/rustdesk-api-web)):
+   in [rustdesk-interface-web](https://github.com/lejianwen/rustdesk-interface-web)):
    ```bash
    cd resources
    mkdir -p admin
-   git clone https://github.com/lejianwen/rustdesk-api-web
-   cd rustdesk-api-web
+   git clone https://github.com/lejianwen/rustdesk-interface-web
+   cd rustdesk-interface-web
    npm install
    npm run build
    cp -ar dist/* ../admin/
@@ -265,7 +265,7 @@ Download the release from [release](https://github.com/lejianwen/rustdesk-api/re
    > the program from another location, specify absolute paths with `-c` and the
    > `RUSTDESK_API_GIN_RESOURCES_PATH` environment variable. Example:
    > ```bash
-   > RUSTDESK_API_GIN_RESOURCES_PATH=/opt/rustdesk-api/resources ./apimain -c /opt/rustdesk-api/conf/config.yaml
+   > RUSTDESK_API_GIN_RESOURCES_PATH=/opt/rustdesk-interface/resources ./apimain -c /opt/rustdesk-interface/conf/config.yaml
    > ```
 
 5. To compile, change to the project root directory. For Windows, run `build.bat`, and for Linux, run `build.sh`. After
@@ -316,8 +316,8 @@ Download the release from [release](https://github.com/lejianwen/rustdesk-api/re
 ```
 ## Others
 
-- [WIKI](https://github.com/lejianwen/rustdesk-api/wiki)
-- [Connection Timeout](https://github.com/lejianwen/rustdesk-api/issues/92)
+- [WIKI](https://github.com/lejianwen/rustdesk-interface/wiki)
+- [Connection Timeout](https://github.com/lejianwen/rustdesk-interface/issues/92)
 - [Change client ID](https://github.com/abdullah-erturk/RustDesk-ID-Changer)
 - [Web client source](https://hub.docker.com/r/keyurbhole/flutter_web_desk)
 
@@ -325,8 +325,8 @@ Download the release from [release](https://github.com/lejianwen/rustdesk-api/re
 
 Thanks to everyone who contributed!
 
-<a href="https://github.com/lejianwen/rustdesk-api/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=lejianwen/rustdesk-api" />
+<a href="https://github.com/lejianwen/rustdesk-interface/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=lejianwen/rustdesk-interface" />
 </a>
 
 ## Thanks for your support! If you find this project useful, please give it a ⭐️. Thank you!

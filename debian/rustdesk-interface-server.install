@@ -1,0 +1,6 @@
+bin/rustdesk-interface usr/bin
+systemd/rustdesk-interface.service lib/systemd/system
+conf var/lib/rustdesk-interface
+data var/lib/rustdesk-interface
+resources var/lib/rustdesk-interface
+runtime var/lib/rustdesk-interface

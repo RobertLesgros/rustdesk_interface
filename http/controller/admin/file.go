@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/global"
-	"github.com/RobertLesgros/rustdesk-api/v2/http/response"
-	"github.com/RobertLesgros/rustdesk-api/v2/lib/upload"
+	"github.com/RobertLesgros/rustdesk-interface/v2/global"
+	"github.com/RobertLesgros/rustdesk-interface/v2/http/response"
+	"github.com/RobertLesgros/rustdesk-interface/v2/lib/upload"
 	"os"
 	"time"
 )

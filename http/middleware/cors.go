@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/global"
+	"github.com/RobertLesgros/rustdesk-interface/v2/global"
 )
 
 // Cors handles Cross-Origin Resource Sharing

@@ -1,12 +1,12 @@
-Source: rustdesk-api-server
+Source: rustdesk-interface-server
 Section: net
 Priority: optional
 Maintainer: ymwl <ymwlpoolc@qq.com>
 Build-Depends: debhelper (>= 10), pkg-config
 Standards-Version: 4.5.0
-Homepage: https://github.com/lejianwen/rustdesk-api/
+Homepage: https://github.com/lejianwen/rustdesk-interface/
 
-Package: rustdesk-api-server
+Package: rustdesk-interface-server
 Architecture: {{ ARCH }}
 Depends: systemd ${misc:Depends}
 Description: RustDesk api server

@@ -1,14 +1,14 @@
 services:
-  rustdesk-api:
+  rustdesk-interface:
     build: 
       context: .
       dockerfile: Dockerfile.dev
       args:
         COUNTRY: CN
-        FRONTEND_GIT_REPO: https://github.com/lejianwen/rustdesk-api-web.git
+        FRONTEND_GIT_REPO: https://github.com/lejianwen/rustdesk-interface-web.git
         FRONTEND_GIT_BRANCH: master
-    # image: lejianwen/rustdesk-api
-    container_name: rustdesk-api
+    # image: lejianwen/rustdesk-interface
+    container_name: rustdesk-interface
     environment:
       - TZ=Asia/Shanghai
       - RUSTDESK_API_RUSTDESK_ID_SERVER=192.168.1.66:21116

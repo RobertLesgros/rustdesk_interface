@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/RobertLesgros/rustdesk-api/v2/config"
-	"github.com/RobertLesgros/rustdesk-api/v2/lib/jwt"
-	"github.com/RobertLesgros/rustdesk-api/v2/lib/lock"
-	"github.com/RobertLesgros/rustdesk-api/v2/model"
+	"github.com/RobertLesgros/rustdesk-interface/v2/config"
+	"github.com/RobertLesgros/rustdesk-interface/v2/lib/jwt"
+	"github.com/RobertLesgros/rustdesk-interface/v2/lib/lock"
+	"github.com/RobertLesgros/rustdesk-interface/v2/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )

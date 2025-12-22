@@ -2057,7 +2057,7 @@ const docTemplateadmin = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_RobertLesgros_rustdesk-api_v2_http_request_admin.Login"
+                            "$ref": "#/definitions/github_com_RobertLesgros_rustdesk-interface_v2_http_request_admin.Login"
                         }
                     }
                 ],
@@ -5820,7 +5820,7 @@ const docTemplateadmin = `{
                 }
             }
         },
-        "github_com_RobertLesgros_rustdesk-api_v2_http_request_admin.Login": {
+        "github_com_RobertLesgros_rustdesk-interface_v2_http_request_admin.Login": {
             "type": "object",
             "required": [
                 "password",

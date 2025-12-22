@@ -36,7 +36,7 @@ WORKDIR /frontend
 # Install required tools without caching index to minimize image size
 RUN apk update && apk add --no-cache git
 
-ARG FRONTEND_GIT_REPO=https://github.com/lejianwen/rustdesk-api-web.git
+ARG FRONTEND_GIT_REPO=https://github.com/lejianwen/rustdesk-interface-web.git
 ARG FRONTEND_GIT_BRANCH=master
 # Clone the frontend repository
 

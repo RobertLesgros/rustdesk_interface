@@ -26,7 +26,7 @@ on:
       WEBCLIENT_SOURCE_LOCATION:
         description: 'Web Client API Repository'
         required: true
-        default: 'https://github.com/lejianwen/rustdesk-api-web'
+        default: 'https://github.com/lejianwen/rustdesk-interface-web'
   push:
     tags:
       - 'v*.*.*'  # 当推送带有版本号的 tag（例如 v1.0.0）时触发工作流
@@ -34,7 +34,7 @@ on:
 
 env:
   LATEST_TAG: latest
-  WEBCLIENT_SOURCE_LOCATION: ${{ github.event.inputs.WEBCLIENT_SOURCE_LOCATION || 'https://github.com/lejianwen/rustdesk-api-web' }}
+  WEBCLIENT_SOURCE_LOCATION: ${{ github.event.inputs.WEBCLIENT_SOURCE_LOCATION || 'https://github.com/lejianwen/rustdesk-interface-web' }}
   BASE_IMAGE_NAMESPACE: ${{ github.event.inputs.BASE_IMAGE_NAMESPACE || github.actor }}
   DOCKERHUB_IMAGE_NAMESPACE: ${{ github.event.inputs.DOCKERHUB_IMAGE_NAMESPACE || github.actor }}
   GHCR_IMAGE_NAMESPACE: ${{ github.event.inputs.GHCR_IMAGE_NAMESPACE || github.actor }}
@@ -59,8 +59,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v4
         with:
-          repository: lejianwen/rustdesk-api-web
-          path: rustdesk-api-web
+          repository: lejianwen/rustdesk-interface-web
+          path: rustdesk-interface-web
           ref: master
 
       - name: Set up Go environment
@@ -73,8 +73,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: build rustdesk-api-web
-        working-directory: rustdesk-api-web
+      - name: build rustdesk-interface-web
+        working-directory: rustdesk-interface-web
         run: |
           npm install
           npm run build
@@ -134,7 +134,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rustdesk-api-${{ matrix.job.goos }}-${{ matrix.job.platform }}
+          name: rustdesk-interface-${{ matrix.job.goos }}-${{ matrix.job.platform }}
           path: |
             ${{ matrix.job.goos}}-${{ matrix.job.platform }}.${{matrix.job.file_ext}}
 
@@ -188,12 +188,12 @@ jobs:
       - name: Update changelog
         run: |
           DATE=$(date -R)
-          sed -i "1i rustdesk-api-server (${VERSION}) stable; urgency=medium\n\n  * Automatically generated release for version ${VERSION}.\n\n -- GitHub Actions <actions@github.com>  ${DATE}\n" debian/changelog
+          sed -i "1i rustdesk-interface-server (${VERSION}) stable; urgency=medium\n\n  * Automatically generated release for version ${VERSION}.\n\n -- GitHub Actions <actions@github.com>  ${DATE}\n" debian/changelog
 
       - name: Download binaries
         uses: actions/download-artifact@v4
         with:
-          name: rustdesk-api-${{ matrix.job.goos }}-${{ matrix.job.platform }}
+          name: rustdesk-interface-${{ matrix.job.goos }}-${{ matrix.job.platform }}
           path: .
 
       - name: Unzip binaries
@@ -203,7 +203,7 @@ jobs:
 
       - name: Build package for ${{ matrix.job.platform }} arch
         run: |
-          mv ${{ matrix.job.platform }}/release/apimain debian-build/${{ matrix.job.platform }}/bin/rustdesk-api 
+          mv ${{ matrix.job.platform }}/release/apimain debian-build/${{ matrix.job.platform }}/bin/rustdesk-interface 
           mv ${{ matrix.job.platform }}/release/resources/admin resources
           chmod -v a+x debian-build/${{ matrix.job.platform }}/bin/*
           mkdir -p data
@@ -215,7 +215,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rustdesk-api-${{ matrix.job.debian_platform }}
+          name: rustdesk-interface-${{ matrix.job.debian_platform }}
           path: |
             debian-build/*.deb
 
@@ -223,7 +223,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            debian-build/rustdesk-api-server_*_${{ matrix.job.debian_platform }}.deb
+            debian-build/rustdesk-interface-server_*_${{ matrix.job.debian_platform }}.deb
 
   docker:
     name: Push Docker Image
@@ -274,12 +274,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api
+          images: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface
 
       - name: Download binaries
         uses: actions/download-artifact@v4
         with:
-          name: rustdesk-api-${{ matrix.job.goos }}-${{ matrix.job.platform }}
+          name: rustdesk-interface-${{ matrix.job.goos }}-${{ matrix.job.platform }}
           path: ./
 
       - name: Unzip binaries
@@ -299,8 +299,8 @@ jobs:
           build-args: |
             BUILDARCH=${{ matrix.job.platform }}
           tags: |
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.LATEST_TAG }}-${{ matrix.job.platform }},
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-${{ matrix.job.platform }}
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.LATEST_TAG }}-${{ matrix.job.platform }},
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-${{ matrix.job.platform }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Docker Full S6 image to Docker Hub ${{ matrix.job.platform }}
@@ -315,7 +315,7 @@ jobs:
           build-args: |
             BUILDARCH=${{ matrix.job.platform }}
           tags: |
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-${{ matrix.job.platform }}
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-${{ matrix.job.platform }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Docker image to GHCR ${{ matrix.job.platform }}
@@ -330,8 +330,8 @@ jobs:
           build-args: |
             BUILDARCH=${{ matrix.job.platform }}
           tags: |
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.LATEST_TAG }}-${{ matrix.job.platform }},
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-${{ matrix.job.platform }}
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.LATEST_TAG }}-${{ matrix.job.platform }},
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-${{ matrix.job.platform }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Docker Full S6 image to GHCR ${{ matrix.job.platform }}
@@ -346,7 +346,7 @@ jobs:
           build-args: |
             BUILDARCH=${{ matrix.job.platform }}
           tags: |
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-${{ matrix.job.platform }}
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-${{ matrix.job.platform }}
           labels: ${{ steps.meta.outputs.labels }}
 
   #
@@ -383,20 +383,20 @@ jobs:
         if: ${{ env.SKIP_DOCKER_HUB == 'false' }}
         uses: Noelware/docker-manifest-action@v0.2.3
         with:
-          base-image: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}
-          extra-images: ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-amd64,
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-armv7l,
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-arm64
+          base-image: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}
+          extra-images: ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-amd64,
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-armv7l,
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-arm64
           push: true
 
       - name: Create and push manifest GHCR (:version)
         if: ${{ env.SKIP_GHCR == 'false' }}
         uses: Noelware/docker-manifest-action@v0.2.3
         with:
-          base-image: ghcr.io/${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}
-          extra-images: ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-amd64,
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-armv7l,
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:${{ env.TAG }}-arm64
+          base-image: ghcr.io/${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}
+          extra-images: ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-amd64,
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-armv7l,
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:${{ env.TAG }}-arm64
           push: true
           amend: true
 
@@ -404,20 +404,20 @@ jobs:
         if: ${{ env.SKIP_DOCKER_HUB == 'false' }}
         uses: Noelware/docker-manifest-action@v0.2.3
         with:
-          base-image: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api:latest
-          extra-images: ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:latest-amd64,
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:latest-armv7l,
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:latest-arm64
+          base-image: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface:latest
+          extra-images: ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:latest-amd64,
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:latest-armv7l,
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:latest-arm64
           push: true
 
       - name: Create and push manifest GHCR (:latest)
         if: ${{ env.SKIP_GHCR == 'false' }}
         uses: Noelware/docker-manifest-action@v0.2.3
         with:
-          base-image: ghcr.io/${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api:latest
-          extra-images: ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:latest-amd64,
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:latest-armv7l,
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:latest-arm64
+          base-image: ghcr.io/${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface:latest
+          extra-images: ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:latest-amd64,
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:latest-armv7l,
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:latest-arm64
           push: true
           amend: true
 
@@ -425,10 +425,10 @@ jobs:
         if: ${{ env.SKIP_DOCKER_HUB == 'false' }}
         uses: Noelware/docker-manifest-action@v0.2.3
         with:
-          base-image: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api:full-s6
-          extra-images: ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-amd64,
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-armv7l,
-            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-arm64
+          base-image: ${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6
+          extra-images: ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-amd64,
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-armv7l,
+            ${{ env.DOCKERHUB_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-arm64
           push: true
           amend: true
 
@@ -436,9 +436,9 @@ jobs:
         if: ${{ env.SKIP_GHCR == 'false' }}
         uses: Noelware/docker-manifest-action@v0.2.3
         with:
-          base-image: ghcr.io/${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-api:full-s6
-          extra-images: ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-amd64,
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-armv7l,
-            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-api:full-s6-arm64
+          base-image: ghcr.io/${{ env.BASE_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6
+          extra-images: ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-amd64,
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-armv7l,
+            ghcr.io/${{ env.GHCR_IMAGE_NAMESPACE }}/rustdesk-interface:full-s6-arm64
           push: true
           amend: true

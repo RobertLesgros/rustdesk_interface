@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-ldap/ldap/v3"
 
-	"github.com/RobertLesgros/rustdesk-api/v2/config"
-	"github.com/RobertLesgros/rustdesk-api/v2/model"
+	"github.com/RobertLesgros/rustdesk-interface/v2/config"
+	"github.com/RobertLesgros/rustdesk-interface/v2/model"
 )
 
 var (

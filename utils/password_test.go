@@ -7,7 +7,7 @@ import (
 )
 
 func TestVerifyPasswordMD5(t *testing.T) {
-	hash := Md5("secret" + "rustdesk-api")
+	hash := Md5("secret" + "rustdesk-interface")
 	ok, newHash, err := VerifyPassword(hash, "secret")
 	if err != nil {
 		t.Fatalf("md5 verify failed: %v", err)
@@ -29,7 +29,7 @@ func TestVerifyPasswordBcrypt(t *testing.T) {
 }
 
 func TestVerifyPasswordMigrate(t *testing.T) {
-	md5hash := Md5("mypass" + "rustdesk-api")
+	md5hash := Md5("mypass" + "rustdesk-interface")
 	ok, newHash, err := VerifyPassword(md5hash, "mypass")
 	if err != nil || !ok || newHash == "" {
 		t.Fatalf("expected bcrypt rehash")

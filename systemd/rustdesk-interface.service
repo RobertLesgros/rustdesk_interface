@@ -1,0 +1,18 @@
+[Unit]
+Description=Rustdesk api Server
+
+[Service]
+Type=simple
+LimitNOFILE=1000000
+ExecStart=/usr/bin/rustdesk-interface
+WorkingDirectory=/var/lib/rustdesk-interface/
+User=
+Group=
+Restart=always
+StandardOutput=append:/var/log/rustdesk-interface/rustdesk-interface.log
+StandardError=append:/var/log/rustdesk-interface/rustdesk-interface.error
+# Restart service after 10 seconds if node service crashes
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

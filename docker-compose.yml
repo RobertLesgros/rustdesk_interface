@@ -7,12 +7,12 @@
 version: '3.8'
 
 services:
-  rustdesk-api:
+  rustdesk-interface:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    image: rustdesk-api:latest
-    container_name: rustdesk-api
+    image: rustdesk-interface:latest
+    container_name: rustdesk-interface
     restart: unless-stopped
 
     # Security: Run as non-root user (also enforced in Dockerfile)

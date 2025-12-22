@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/model"
-	"github.com/RobertLesgros/rustdesk-api/v2/utils"
+	"github.com/RobertLesgros/rustdesk-interface/v2/model"
+	"github.com/RobertLesgros/rustdesk-interface/v2/utils"
 	"gorm.io/gorm"
 )
 

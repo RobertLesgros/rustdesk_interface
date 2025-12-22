@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/RobertLesgros/rustdesk-api/v2/global"
-	"github.com/RobertLesgros/rustdesk-api/v2/http/response"
-	"github.com/RobertLesgros/rustdesk-api/v2/lib/audit"
+	"github.com/RobertLesgros/rustdesk-interface/v2/global"
+	"github.com/RobertLesgros/rustdesk-interface/v2/http/response"
+	"github.com/RobertLesgros/rustdesk-interface/v2/lib/audit"
 )
 
 // Limiter checks if the client IP is banned (for login attempts)

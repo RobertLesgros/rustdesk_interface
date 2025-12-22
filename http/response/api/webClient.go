@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/RobertLesgros/rustdesk-api/v2/model"
+	"github.com/RobertLesgros/rustdesk-interface/v2/model"
 	"time"
 )
 
