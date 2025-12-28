@@ -1,0 +1,83 @@
+# =============================================================================
+# Docker Compose pour RustDesk Interface - Installation Hors Ligne
+# =============================================================================
+# Ce fichier est conçu pour les environnements sans connexion Internet.
+# L'image doit être chargée au préalable avec: docker load -i rustdesk-interface-offline.tar
+#
+# Usage:
+#   cp .env.production.example .env.production
+#   # Éditez .env.production avec vos valeurs
+#   docker-compose -f docker-compose-offline.yml up -d
+# =============================================================================
+
+version: '3.8'
+
+services:
+  rustdesk-interface:
+    # Image pré-construite (chargée depuis le fichier tar)
+    image: rustdesk-interface:offline
+    container_name: rustdesk-interface
+    restart: unless-stopped
+
+    # Sécurité: Utilisateur non-root (correspondant à rustdesk:rustdesk dans l'image)
+    user: "1000:1000"
+
+    # Sécurité: Système de fichiers en lecture seule
+    read_only: true
+
+    # Sécurité: Supprimer toutes les capacités Linux
+    cap_drop:
+      - ALL
+
+    # Sécurité: Pas d'escalade de privilèges
+    security_opt:
+      - no-new-privileges:true
+
+    # Port de l'API
+    ports:
+      - "21114:21114"
+
+    # Volumes pour persistance et configuration
+    volumes:
+      # Données persistantes (base de données SQLite, fichiers uploadés)
+      - ./data:/app/data
+      # Logs d'exécution et d'audit
+      - ./runtime:/app/runtime
+      # Configuration (lecture seule)
+      - ./conf:/app/conf:ro
+
+    # Tmpfs pour fichiers temporaires (nécessaire car read_only: true)
+    tmpfs:
+      - /tmp:mode=1777,size=64M
+
+    # Variables d'environnement depuis le fichier .env.production
+    env_file:
+      - .env.production
+
+    # Health check pour orchestration
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:21114/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    # Limites de ressources
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    # Configuration du logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+# Note: Pas de volumes Docker nommés - utilisation de répertoires locaux
+# pour faciliter les sauvegardes et le transfert des données
