@@ -1,0 +1,103 @@
+# =============================================================================
+# Dockerfile.offline - Construction hors ligne pour RustDesk Interface
+# =============================================================================
+# Ce Dockerfile est conçu pour les environnements sans connexion Internet.
+# Il utilise des sources locales pré-téléchargées.
+#
+# Prérequis:
+# 1. Exécuter d'abord ./scripts/prepare-offline.sh sur une machine connectée
+# 2. Transférer le dossier complet vers la machine hors ligne
+# 3. Construire avec: docker build -f Dockerfile.offline -t rustdesk-interface:offline .
+# =============================================================================
+
+# Arguments de build
+ARG GO_VERSION=1.24
+ARG BUILDARCH=amd64
+
+# =============================================================================
+# Stage 1: Construction du Backend Go
+# =============================================================================
+FROM crazymax/xgo:${GO_VERSION} AS builder-backend
+
+WORKDIR /app
+
+# Copier les sources
+COPY . .
+
+# Construire avec le cache des modules Go
+# Note: Pour hors ligne, les modules doivent être dans vendor/ ou pré-téléchargés
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod tidy && \
+    go mod download && \
+    go install github.com/swaggo/swag/cmd/swag@latest
+
+# Générer la documentation Swagger
+RUN --mount=type=cache,target=/go/pkg/mod \
+    swag init -g cmd/apimain.go --output docs/api --instanceName api --exclude http/controller/admin && \
+    swag init -g cmd/apimain.go --output docs/admin --instanceName admin --exclude http/controller/api
+
+# Compiler l'application Go (binaire statique)
+RUN --mount=type=cache,target=/go/pkg/mod \
+    CGO_ENABLED=1 GOOS=linux go build -a \
+    -ldflags "-s -w --extldflags '-static -fpic'" \
+    -installsuffix cgo -o release/apimain cmd/apimain.go
+
+# =============================================================================
+# Stage 2: Construction du Frontend (depuis sources locales)
+# =============================================================================
+FROM node:18-alpine AS builder-frontend
+
+WORKDIR /frontend
+
+# Copier les sources du frontend local (doit être dans ./frontend-src/)
+# Si le dossier n'existe pas, le build échouera avec un message clair
+COPY frontend-src/ .
+
+# Installer les dépendances et construire
+# --offline permet d'utiliser le cache npm si disponible
+RUN npm install && npm run build
+
+# =============================================================================
+# Stage 3: Image de Production
+# =============================================================================
+FROM alpine:3.19
+
+WORKDIR /app
+
+# Installer les dépendances runtime minimales
+RUN apk add --no-cache tzdata ca-certificates file
+
+# Créer l'utilisateur non-root
+RUN addgroup -g 1000 rustdesk && \
+    adduser -u 1000 -G rustdesk -h /app -D rustdesk
+
+# Copier les artefacts depuis les stages de build
+COPY --from=builder-backend /app/release /app/
+COPY --from=builder-backend /app/conf /app/conf/
+COPY --from=builder-backend /app/resources /app/resources/
+COPY --from=builder-backend /app/docs /app/docs/
+
+# Copier le frontend construit
+COPY --from=builder-frontend /frontend/dist/ /app/resources/admin/
+
+# Créer les répertoires et définir les permissions
+RUN file /app/apimain && \
+    mkdir -p /app/data /app/runtime && \
+    chown -R rustdesk:rustdesk /app && \
+    chmod 550 /app/apimain
+
+# Volume pour les données persistantes
+VOLUME /app/data
+
+# Port de l'API
+EXPOSE 21114
+
+# Exécuter en tant qu'utilisateur non-root
+USER rustdesk
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:21114/api/health || exit 1
+
+# Commande de démarrage
+CMD ["./apimain"]
