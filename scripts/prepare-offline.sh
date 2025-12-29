@@ -5,16 +5,19 @@
 # Ce script doit être exécuté sur une machine AVEC connexion Internet.
 # Il prépare tous les fichiers nécessaires pour une installation hors ligne.
 #
+# Prérequis:
+#   git clone https://github.com/RobertLesgros/rustdesk_interface.git
+#   cd rustdesk_interface
+#   ./scripts/prepare-offline.sh
+#
 # Usage:
-#   ./scripts/prepare-offline.sh [--export-only] [--skip-frontend] [--skip-build]
+#   ./scripts/prepare-offline.sh [--export-only] [--skip-build]
 #
 # Options:
 #   --export-only    : Exporte uniquement l'image existante sans reconstruire
-#   --skip-frontend  : Ne pas télécharger le frontend (utiliser l'existant)
 #   --skip-build     : Ne pas construire l'image Docker
 #
 # Sorties:
-#   - frontend-src/          : Sources du frontend
 #   - offline-bundle/        : Bundle complet pour transfert hors ligne
 #   - rustdesk-interface-offline.tar : Image Docker exportée
 # =============================================================================
@@ -31,7 +34,8 @@ NC='\033[0m' # No Color
 # Variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-FRONTEND_REPO="https://github.com/lejianwen/rustdesk-interface-web.git"
+FRONTEND_DIR="$PROJECT_DIR/frontend"
+FRONTEND_REPO="https://github.com/RobertLesgros/rustdesk_interface_web.git"
 FRONTEND_BRANCH="master"
 IMAGE_NAME="rustdesk-interface"
 IMAGE_TAG="offline"
@@ -39,7 +43,6 @@ BUNDLE_DIR="$PROJECT_DIR/offline-bundle"
 
 # Options
 EXPORT_ONLY=false
-SKIP_FRONTEND=false
 SKIP_BUILD=false
 
 # Parser les arguments
@@ -48,18 +51,14 @@ for arg in "$@"; do
         --export-only)
             EXPORT_ONLY=true
             ;;
-        --skip-frontend)
-            SKIP_FRONTEND=true
-            ;;
         --skip-build)
             SKIP_BUILD=true
             ;;
         --help|-h)
-            echo "Usage: $0 [--export-only] [--skip-frontend] [--skip-build]"
+            echo "Usage: $0 [--export-only] [--skip-build]"
             echo ""
             echo "Options:"
             echo "  --export-only    Exporte uniquement l'image existante sans reconstruire"
-            echo "  --skip-frontend  Ne pas télécharger le frontend (utiliser l'existant)"
             echo "  --skip-build     Ne pas construire l'image Docker"
             echo "  --help, -h       Affiche cette aide"
             exit 0
@@ -110,28 +109,39 @@ check_prerequisites() {
     log_success "Tous les prérequis sont satisfaits"
 }
 
-# Télécharger le frontend
+# Télécharger ou mettre à jour le frontend
 download_frontend() {
-    if [ "$SKIP_FRONTEND" = true ]; then
-        log_warning "Téléchargement du frontend ignoré (--skip-frontend)"
+    if [ "$EXPORT_ONLY" = true ]; then
+        log_warning "Téléchargement du frontend ignoré (--export-only)"
         return
     fi
 
-    log_info "Téléchargement du frontend depuis GitHub..."
+    log_info "Préparation du frontend..."
 
     cd "$PROJECT_DIR"
 
-    if [ -d "frontend-src" ]; then
-        log_warning "Le dossier frontend-src existe déjà. Mise à jour..."
-        cd frontend-src
-        git fetch origin
-        git reset --hard origin/$FRONTEND_BRANCH
-        cd ..
+    if [ -d "$FRONTEND_DIR" ]; then
+        log_info "Le dossier frontend/ existe déjà. Mise à jour..."
+        cd "$FRONTEND_DIR"
+
+        # Vérifier si c'est un dépôt git
+        if [ -d ".git" ]; then
+            git fetch origin
+            git reset --hard origin/$FRONTEND_BRANCH
+            log_success "Frontend mis à jour depuis GitHub"
+        else
+            log_warning "Le dossier frontend/ n'est pas un dépôt git. Utilisation des fichiers existants."
+        fi
+        cd "$PROJECT_DIR"
     else
-        git clone -b $FRONTEND_BRANCH $FRONTEND_REPO frontend-src
+        log_info "Clonage du frontend depuis GitHub..."
+        git clone -b $FRONTEND_BRANCH $FRONTEND_REPO "$FRONTEND_DIR"
+        log_success "Frontend cloné dans frontend/"
     fi
 
-    log_success "Frontend téléchargé dans frontend-src/"
+    # Afficher info sur les modifications possibles
+    log_info "Vous pouvez personnaliser le frontend dans le dossier frontend/"
+    log_info "Puis relancer ce script pour reconstruire l'image."
 }
 
 # Construire l'image Docker
@@ -141,19 +151,20 @@ build_docker_image() {
         return
     fi
 
-    log_info "Construction de l'image Docker..."
-
-    cd "$PROJECT_DIR"
-
     # Vérifier que le frontend est présent
-    if [ ! -d "frontend-src" ]; then
-        log_error "Le dossier frontend-src n'existe pas. Exécutez d'abord sans --skip-frontend."
+    if [ ! -d "$FRONTEND_DIR" ]; then
+        log_error "Le dossier frontend/ n'existe pas."
+        log_error "Exécutez d'abord: git clone $FRONTEND_REPO frontend"
         exit 1
     fi
 
-    # Construire l'image
+    log_info "Construction de l'image Docker (cela peut prendre plusieurs minutes)..."
+
+    cd "$PROJECT_DIR"
+
+    # Construire l'image avec Dockerfile.dev
     docker build \
-        -f Dockerfile.offline \
+        -f Dockerfile.dev \
         -t ${IMAGE_NAME}:${IMAGE_TAG} \
         --build-arg BUILDARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64") \
         .

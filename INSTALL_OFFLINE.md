@@ -53,7 +53,7 @@ L'installation hors ligne se déroule en deux phases :
 ### Prérequis sur la machine de préparation
 
 - **Docker** (version 20.10 ou supérieure)
-- **Git**
+- **Git** (pour cloner le dépôt)
 - **Connexion Internet**
 - Environ **2 Go** d'espace disque libre
 
@@ -71,10 +71,33 @@ cd rustdesk_interface
 ```
 
 Ce script effectue automatiquement :
-1. Télécharge les sources du frontend depuis GitHub
-2. Construit l'image Docker complète
+1. Clone le frontend depuis GitHub (dans `frontend/`)
+2. Construit l'image Docker complète (backend Go + frontend)
 3. Exporte l'image dans un fichier tar
 4. Crée un bundle avec tous les fichiers nécessaires
+
+**Note** : Le frontend est cloné localement, ce qui vous permet de le personnaliser avant de construire l'image.
+
+### Personnalisation du frontend (optionnel)
+
+Si vous souhaitez modifier l'interface :
+
+```bash
+# Le frontend est cloné dans frontend/
+cd frontend
+
+# Faites vos modifications...
+# Puis revenez à la racine et relancez le script
+cd ..
+./scripts/prepare-offline.sh
+```
+
+Pour inclure définitivement le frontend dans votre dépôt :
+```bash
+# Retirez frontend/ du .gitignore puis committez
+git add frontend/
+git commit -m "Add frontend sources"
+```
 
 ### Étape 1.3 : Vérifier les fichiers créés
 

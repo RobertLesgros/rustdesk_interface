@@ -17,3 +17,12 @@ id_ed25519*
 
 # Docker
 .docker/
+
+# Frontend (cloné automatiquement par prepare-offline.sh)
+# Décommentez la ligne suivante si vous voulez inclure le frontend dans votre dépôt
+frontend/
+
+# Fichiers générés pour installation offline
+offline-bundle/
+rustdesk-interface-offline.tar
+rustdesk-interface-offline-bundle.tar.gz
