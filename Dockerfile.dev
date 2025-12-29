@@ -33,14 +33,9 @@ FROM node:18-alpine AS builder-admin-frontend
 # Set working directory
 WORKDIR /frontend
 
-# Install required tools without caching index to minimize image size
-RUN apk update && apk add --no-cache git
-
-ARG FRONTEND_GIT_REPO=https://github.com/lejianwen/rustdesk-interface-web.git
-ARG FRONTEND_GIT_BRANCH=master
-# Clone the frontend repository
-
-RUN git clone -b $FRONTEND_GIT_BRANCH $FRONTEND_GIT_REPO .
+# Copy local frontend sources (must be in ./frontend/)
+# This avoids GitHub authentication issues and allows customization
+COPY frontend/ .
 
 # Install and build frontend
 RUN npm install && npm run build

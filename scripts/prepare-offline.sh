@@ -34,6 +34,9 @@ NC='\033[0m' # No Color
 # Variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+FRONTEND_DIR="$PROJECT_DIR/frontend"
+FRONTEND_REPO="https://github.com/lejianwen/rustdesk-interface-web.git"
+FRONTEND_BRANCH="master"
 IMAGE_NAME="rustdesk-interface"
 IMAGE_TAG="offline"
 BUNDLE_DIR="$PROJECT_DIR/offline-bundle"
@@ -93,6 +96,11 @@ check_prerequisites() {
         exit 1
     fi
 
+    if ! command -v git &> /dev/null; then
+        log_error "Git n'est pas installé. Veuillez l'installer avant de continuer."
+        exit 1
+    fi
+
     if ! docker info &> /dev/null; then
         log_error "Docker n'est pas en cours d'exécution. Veuillez le démarrer."
         exit 1
@@ -101,21 +109,60 @@ check_prerequisites() {
     log_success "Tous les prérequis sont satisfaits"
 }
 
+# Télécharger ou mettre à jour le frontend
+download_frontend() {
+    if [ "$EXPORT_ONLY" = true ]; then
+        log_warning "Téléchargement du frontend ignoré (--export-only)"
+        return
+    fi
+
+    log_info "Préparation du frontend..."
+
+    cd "$PROJECT_DIR"
+
+    if [ -d "$FRONTEND_DIR" ]; then
+        log_info "Le dossier frontend/ existe déjà. Mise à jour..."
+        cd "$FRONTEND_DIR"
+
+        # Vérifier si c'est un dépôt git
+        if [ -d ".git" ]; then
+            git fetch origin
+            git reset --hard origin/$FRONTEND_BRANCH
+            log_success "Frontend mis à jour depuis GitHub"
+        else
+            log_warning "Le dossier frontend/ n'est pas un dépôt git. Utilisation des fichiers existants."
+        fi
+        cd "$PROJECT_DIR"
+    else
+        log_info "Clonage du frontend depuis GitHub..."
+        git clone -b $FRONTEND_BRANCH $FRONTEND_REPO "$FRONTEND_DIR"
+        log_success "Frontend cloné dans frontend/"
+    fi
+
+    # Afficher info sur les modifications possibles
+    log_info "Vous pouvez personnaliser le frontend dans le dossier frontend/"
+    log_info "Puis relancer ce script pour reconstruire l'image."
+}
+
 # Construire l'image Docker
-# Utilise Dockerfile.dev qui gère automatiquement le téléchargement du frontend
 build_docker_image() {
     if [ "$SKIP_BUILD" = true ] || [ "$EXPORT_ONLY" = true ]; then
         log_warning "Construction de l'image ignorée"
         return
     fi
 
+    # Vérifier que le frontend est présent
+    if [ ! -d "$FRONTEND_DIR" ]; then
+        log_error "Le dossier frontend/ n'existe pas."
+        log_error "Exécutez d'abord: git clone $FRONTEND_REPO frontend"
+        exit 1
+    fi
+
     log_info "Construction de l'image Docker (cela peut prendre plusieurs minutes)..."
-    log_info "Le Dockerfile.dev va automatiquement télécharger et compiler le frontend."
 
     cd "$PROJECT_DIR"
 
     # Construire l'image avec Dockerfile.dev
-    # Ce Dockerfile gère tout : backend Go + frontend Node.js
     docker build \
         -f Dockerfile.dev \
         -t ${IMAGE_NAME}:${IMAGE_TAG} \
@@ -266,6 +313,7 @@ main() {
     check_prerequisites
 
     if [ "$EXPORT_ONLY" = false ]; then
+        download_frontend
         build_docker_image
     fi
 
