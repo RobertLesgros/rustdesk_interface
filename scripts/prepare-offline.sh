@@ -5,16 +5,19 @@
 # Ce script doit être exécuté sur une machine AVEC connexion Internet.
 # Il prépare tous les fichiers nécessaires pour une installation hors ligne.
 #
+# Prérequis:
+#   git clone https://github.com/RobertLesgros/rustdesk_interface.git
+#   cd rustdesk_interface
+#   ./scripts/prepare-offline.sh
+#
 # Usage:
-#   ./scripts/prepare-offline.sh [--export-only] [--skip-frontend] [--skip-build]
+#   ./scripts/prepare-offline.sh [--export-only] [--skip-build]
 #
 # Options:
 #   --export-only    : Exporte uniquement l'image existante sans reconstruire
-#   --skip-frontend  : Ne pas télécharger le frontend (utiliser l'existant)
 #   --skip-build     : Ne pas construire l'image Docker
 #
 # Sorties:
-#   - frontend-src/          : Sources du frontend
 #   - offline-bundle/        : Bundle complet pour transfert hors ligne
 #   - rustdesk-interface-offline.tar : Image Docker exportée
 # =============================================================================
@@ -31,15 +34,12 @@ NC='\033[0m' # No Color
 # Variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-FRONTEND_REPO="https://github.com/lejianwen/rustdesk-interface-web.git"
-FRONTEND_BRANCH="master"
 IMAGE_NAME="rustdesk-interface"
 IMAGE_TAG="offline"
 BUNDLE_DIR="$PROJECT_DIR/offline-bundle"
 
 # Options
 EXPORT_ONLY=false
-SKIP_FRONTEND=false
 SKIP_BUILD=false
 
 # Parser les arguments
@@ -48,18 +48,14 @@ for arg in "$@"; do
         --export-only)
             EXPORT_ONLY=true
             ;;
-        --skip-frontend)
-            SKIP_FRONTEND=true
-            ;;
         --skip-build)
             SKIP_BUILD=true
             ;;
         --help|-h)
-            echo "Usage: $0 [--export-only] [--skip-frontend] [--skip-build]"
+            echo "Usage: $0 [--export-only] [--skip-build]"
             echo ""
             echo "Options:"
             echo "  --export-only    Exporte uniquement l'image existante sans reconstruire"
-            echo "  --skip-frontend  Ne pas télécharger le frontend (utiliser l'existant)"
             echo "  --skip-build     Ne pas construire l'image Docker"
             echo "  --help, -h       Affiche cette aide"
             exit 0
@@ -97,11 +93,6 @@ check_prerequisites() {
         exit 1
     fi
 
-    if ! command -v git &> /dev/null; then
-        log_error "Git n'est pas installé. Veuillez l'installer avant de continuer."
-        exit 1
-    fi
-
     if ! docker info &> /dev/null; then
         log_error "Docker n'est pas en cours d'exécution. Veuillez le démarrer."
         exit 1
@@ -110,50 +101,23 @@ check_prerequisites() {
     log_success "Tous les prérequis sont satisfaits"
 }
 
-# Télécharger le frontend
-download_frontend() {
-    if [ "$SKIP_FRONTEND" = true ]; then
-        log_warning "Téléchargement du frontend ignoré (--skip-frontend)"
-        return
-    fi
-
-    log_info "Téléchargement du frontend depuis GitHub..."
-
-    cd "$PROJECT_DIR"
-
-    if [ -d "frontend-src" ]; then
-        log_warning "Le dossier frontend-src existe déjà. Mise à jour..."
-        cd frontend-src
-        git fetch origin
-        git reset --hard origin/$FRONTEND_BRANCH
-        cd ..
-    else
-        git clone -b $FRONTEND_BRANCH $FRONTEND_REPO frontend-src
-    fi
-
-    log_success "Frontend téléchargé dans frontend-src/"
-}
-
 # Construire l'image Docker
+# Utilise Dockerfile.dev qui gère automatiquement le téléchargement du frontend
 build_docker_image() {
     if [ "$SKIP_BUILD" = true ] || [ "$EXPORT_ONLY" = true ]; then
         log_warning "Construction de l'image ignorée"
         return
     fi
 
-    log_info "Construction de l'image Docker..."
+    log_info "Construction de l'image Docker (cela peut prendre plusieurs minutes)..."
+    log_info "Le Dockerfile.dev va automatiquement télécharger et compiler le frontend."
 
     cd "$PROJECT_DIR"
 
-    # Vérifier que le frontend est présent
-    if [ ! -d "frontend-src" ]; then
-        log_error "Le dossier frontend-src n'existe pas. Exécutez d'abord sans --skip-frontend."
-        exit 1
-    fi
-
-    # Construire l'image
+    # Construire l'image avec Dockerfile.dev
+    # Ce Dockerfile gère tout : backend Go + frontend Node.js
     docker build \
-        -f Dockerfile.offline \
+        -f Dockerfile.dev \
         -t ${IMAGE_NAME}:${IMAGE_TAG} \
         --build-arg BUILDARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64") \
         .
@@ -302,7 +266,6 @@ main() {
     check_prerequisites
 
     if [ "$EXPORT_ONLY" = false ]; then
-        download_frontend
         build_docker_image
     fi
 
