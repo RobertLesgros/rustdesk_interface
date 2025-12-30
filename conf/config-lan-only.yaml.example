@@ -1,0 +1,162 @@
+# =============================================================================
+# Configuration RustDesk API - Mode LAN Uniquement (sans Internet)
+# =============================================================================
+#
+# Cette configuration est optimisée pour un déploiement en réseau local fermé :
+# - Pas de connexion Internet requise
+# - Pas d'OAuth (GitHub, Google, OIDC)
+# - Authentification LDAP/Active Directory activée
+# - Sécurité renforcée pour environnement d'entreprise
+#
+# Copiez ce fichier vers conf/config.yaml pour l'utiliser
+# =============================================================================
+
+# Langue française
+lang: "fr"
+
+app:
+  web-client: 1          # Client web RustDesk activé
+  register: false        # Désactiver l'inscription publique (sécurité)
+  register-status: 1     # Statut par défaut des nouveaux utilisateurs
+  captcha-threshold: 3   # Captcha après 3 tentatives échouées
+  ban-threshold: 10      # Bannissement après 10 tentatives échouées
+  show-swagger: 0        # Désactiver Swagger en production (sécurité)
+  token-expire: 8h       # Token expire après 8h (journée de travail)
+  web-sso: false         # SSO désactivé (pas d'OAuth)
+  disable-pwd-login: false  # Mot de passe local activé (fallback LDAP)
+
+admin:
+  title: "RustDesk - Administration Interne"
+  hello-file: "./conf/admin/hello.html"
+  hello: ""
+  id-server-port: 21116
+  relay-server-port: 21117
+
+gin:
+  api-addr: "0.0.0.0:21114"
+  mode: "release"
+  resources-path: "resources"
+  trust-proxy: ""
+  # IMPORTANT: En LAN, spécifiez les IPs/domaines autorisés
+  # Exemple: "http://192.168.1.0/24,http://10.0.0.0/8"
+  cors-allowed-origins: "*"
+
+gorm:
+  type: "sqlite"         # SQLite = pas de serveur BDD externe
+  max-idle-conns: 10
+  max-open-conns: 100
+
+# Configuration MySQL (optionnel - si vous préférez MySQL)
+mysql:
+  username: ""
+  password: ""
+  addr: ""
+  dbname: ""
+  tls: "false"
+
+# Configuration PostgreSQL (optionnel)
+postgresql:
+  host: "127.0.0.1"
+  port: "5432"
+  user: ""
+  password: ""
+  dbname: "postgres"
+  sslmode: "disable"
+  time-zone: "Europe/Paris"
+
+# Configuration RustDesk Server
+# IMPORTANT: Adaptez ces valeurs à votre réseau LAN
+rustdesk:
+  id-server: "192.168.1.10:21116"      # IP du serveur RustDesk
+  relay-server: "192.168.1.10:21117"   # IP du serveur Relay
+  api-server: "http://192.168.1.10:21114"  # URL de cette API
+  key: ""                               # Ou utilisez key-file
+  key-file: "/app/data/id_ed25519.pub"  # Chemin vers la clé publique
+  personal: 1
+  webclient-magic-queryonline: 0
+  ws-host: ""
+
+# Logs de l'application
+logger:
+  path: "./runtime/log.txt"
+  level: "info"
+  report-caller: true
+
+# Logs d'audit de sécurité (RECOMMANDÉ pour entreprise)
+audit:
+  enabled: true
+  file-path: "./runtime/audit.log"
+
+# Proxy Internet (DÉSACTIVÉ pour LAN-only)
+proxy:
+  enable: false
+  host: ""
+
+# JWT pour les tokens d'authentification
+# IMPORTANT: Changez cette clé en production !
+jwt:
+  key: ""  # Sera généré automatiquement si vide, ou définissez via RUSTDESK_API_JWT_KEY
+  expire-duration: 8h
+
+# =============================================================================
+# Configuration LDAP / Active Directory
+# =============================================================================
+#
+# Cette section configure l'authentification via votre annuaire LDAP ou AD.
+# Les utilisateurs pourront se connecter avec leurs identifiants Windows/LDAP.
+#
+ldap:
+  enable: true  # ACTIVER pour utiliser LDAP/AD
+
+  # URL du serveur LDAP
+  # - LDAP non sécurisé: ldap://192.168.1.5:389
+  # - LDAPS sécurisé: ldaps://192.168.1.5:636
+  url: "ldap://192.168.1.5:389"
+
+  # Certificat CA pour LDAPS (optionnel)
+  tls-ca-file: ""
+  tls-verify: false  # Mettre à true en production avec certificat valide
+
+  # Base DN de votre domaine
+  # Active Directory exemple: "DC=entreprise,DC=local"
+  # OpenLDAP exemple: "dc=entreprise,dc=com"
+  base-dn: "DC=entreprise,DC=local"
+
+  # Compte de service pour les requêtes LDAP
+  # Active Directory: utilisez un compte de service dédié
+  bind-dn: "CN=rustdesk-svc,OU=Service Accounts,DC=entreprise,DC=local"
+  bind-password: "MotDePasseSecurise123!"
+
+  # Configuration des utilisateurs
+  user:
+    # OU contenant les utilisateurs
+    base-dn: "OU=Utilisateurs,DC=entreprise,DC=local"
+
+    # Filtre pour Active Directory (utilisateurs actifs uniquement)
+    # Ceci exclut les comptes désactivés
+    filter: "(&(objectClass=user)(objectCategory=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
+
+    # Attribut du nom d'utilisateur
+    # Active Directory: "sAMAccountName"
+    # OpenLDAP: "uid"
+    username: "sAMAccountName"
+
+    # Attributs de l'utilisateur
+    email: "mail"
+    first-name: "givenName"
+    last-name: "sn"
+
+    # Attribut pour vérifier si l'utilisateur est actif (AD)
+    enable-attr: "userAccountControl"
+    enable-attr-value: "512"  # 512 = compte normal actif
+
+    # Synchroniser les infos à chaque connexion
+    sync: true
+
+    # Groupe des administrateurs RustDesk
+    # Les membres de ce groupe auront les droits admin
+    admin-group: "CN=RustDesk-Admins,OU=Groupes,DC=entreprise,DC=local"
+
+    # Groupe autorisé à utiliser RustDesk
+    # Laissez vide pour autoriser tous les utilisateurs LDAP
+    allow-group: "CN=RustDesk-Users,OU=Groupes,DC=entreprise,DC=local"
