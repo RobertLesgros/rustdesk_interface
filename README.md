@@ -26,8 +26,8 @@ Serveur API complet pour RustDesk avec interface d'administration web, client de
 │                                                                              │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────────┐ │
 │  │   Backend API   │  │  Admin Panel    │  │     Web Client RustDesk     │ │
-│  │      (Go)       │  │  (React/Vue)    │  │       (Flutter/WASM)        │ │
-│  │   Ce repo       │  │  Repo séparé    │  │      Inclus ici             │ │
+│  │      (Go)       │  │    (Vue.js)     │  │       (Flutter/WASM)        │ │
+│  │   Ce repo       │  │   Ce repo       │  │        Ce repo              │ │
 │  └─────────────────┘  └─────────────────┘  └─────────────────────────────┘ │
 │                               │                                             │
 │                        Port 21114                                           │
@@ -56,7 +56,7 @@ Serveur API complet pour RustDesk avec interface d'administration web, client de
 - [Améliorations de Sécurité](#améliorations-de-sécurité)
 - [Prérequis](#prérequis)
 - [Installation](#installation)
-- [Intégration du Frontend Web](#intégration-du-frontend-web)
+- [Frontend Web Admin](#frontend-web-admin)
 - [Configuration](#configuration)
 - [Déploiement Docker](#déploiement-docker)
 - [Logs d'Audit](#logs-daudit)
@@ -100,18 +100,28 @@ rustdesk_interface/
 └── conf/                 # Configuration
 ```
 
-### 2. Frontend Admin Panel - Repository Séparé
+### 2. Frontend Admin Panel - Intégré
 
-**L'interface d'administration web est dans un repository séparé :**
+**L'interface d'administration web est maintenant intégrée directement dans ce repository :**
 
-> **Repository** : https://github.com/RobertLesgros/rustdesk_interface_web
+```
+frontend/
+├── src/
+│   ├── views/          # Pages Vue.js
+│   ├── components/     # Composants réutilisables
+│   ├── utils/          # Utilitaires (i18n, auth, etc.)
+│   └── router/         # Routes
+├── package.json        # Dépendances npm
+└── vite.config.js      # Configuration Vite
+```
 
-Cette séparation permet :
-- Un développement indépendant du frontend et backend
-- La personnalisation de l'interface sans modifier le backend
-- Des cycles de release séparés
+**Technologies utilisées :**
+- Vue.js 3.5
+- Vite 6.3
+- Element Plus (UI)
+- Pinia (state management)
 
-**Important** : Pour construire l'image Docker complète, vous devez d'abord cloner le frontend. Voir [Intégration du Frontend Web](#intégration-du-frontend-web).
+> **Source originale** : https://github.com/RobertLesgros/rustdesk_interface_web
 
 ### 3. Client Web RustDesk - Inclus
 
@@ -214,60 +224,60 @@ docker-compose up -d
 
 ---
 
-## Intégration du Frontend Web
+## Frontend Web Admin
 
-L'interface d'administration web est développée dans un **repository séparé**. Vous devez l'intégrer avant de construire l'image Docker.
+Le frontend d'administration est **déjà intégré** dans ce repository (dossier `frontend/`). Aucune action supplémentaire n'est nécessaire pour construire l'image Docker.
 
-### Pourquoi est-ce nécessaire ?
+### Construction Docker
 
-Le `Dockerfile.dev` s'attend à trouver le frontend dans le dossier `frontend/` :
+Le `Dockerfile.dev` compile automatiquement le frontend :
 
 ```dockerfile
-# Stage 2: Frontend Build
+# Stage 2: Frontend Build (automatique)
 FROM node:18-alpine AS builder-admin-frontend
-COPY frontend/ .  # ← Requiert le dossier frontend/
+COPY frontend/ .
 RUN npm install && npm run build
 ```
 
-Sans ce dossier, la construction Docker **échouera**.
+### Développement du Frontend
 
-### Méthode 1 : Script Automatique (Recommandé)
-
-```bash
-# Ce script clone le frontend et construit tout
-./scripts/prepare-offline.sh
-```
-
-### Méthode 2 : Clonage Manuel
-
-```bash
-# Cloner le frontend
-git clone https://github.com/RobertLesgros/rustdesk_interface_web.git frontend
-
-# Puis construire l'image Docker
-docker build -f Dockerfile.dev -t rustdesk-interface:latest .
-```
-
-### Méthode 3 : Git Submodule (Pour Développeurs)
-
-```bash
-# Ajouter comme submodule
-git submodule add https://github.com/RobertLesgros/rustdesk_interface_web.git frontend
-
-# Pour cloner le projet avec les submodules
-git clone --recursive https://github.com/RobertLesgros/rustdesk_interface.git
-```
-
-### Personnalisation du Frontend
-
-Vous pouvez modifier le frontend avant la construction :
+Pour modifier l'interface d'administration :
 
 ```bash
 cd frontend
-# Modifier les fichiers...
+
+# Installer les dépendances
 npm install
+
+# Lancer en mode développement (hot reload)
+npm run dev
+# → Accessible sur http://localhost:5173
+
+# Construire pour production
 npm run build
-# Les fichiers compilés seront dans dist/
+# → Fichiers générés dans dist/
+```
+
+### Structure du Frontend
+
+```
+frontend/
+├── src/
+│   ├── views/              # Pages
+│   │   ├── login/         # Authentification
+│   │   ├── my/            # Espace utilisateur
+│   │   ├── user/          # Gestion utilisateurs
+│   │   ├── group/         # Gestion groupes
+│   │   ├── peer/          # Gestion appareils
+│   │   └── oauth/         # Configuration OAuth
+│   ├── components/         # Composants Vue.js
+│   ├── utils/              # Utilitaires
+│   │   ├── i18n/          # Traductions (fr, en, etc.)
+│   │   ├── auth.js        # Authentification
+│   │   └── request.js     # Appels API
+│   └── router/             # Routes
+├── public/                 # Fichiers statiques
+└── vite.config.js          # Configuration Vite
 ```
 
 ---

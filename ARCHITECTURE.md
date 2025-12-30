@@ -94,22 +94,23 @@ Le cœur du système, écrit en Go, qui fournit :
 └── config/               # Configuration
 ```
 
-### 2. Frontend Admin Panel - Repository Séparé
+### 2. Frontend Admin Panel - Intégré
 
-**Repository** : `https://github.com/RobertLesgros/rustdesk_interface_web`
-
-**Localisation dans le build** : `frontend/` → compilé vers `resources/admin/`
+**Localisation** : `frontend/` → compilé vers `resources/admin/`
 
 Interface d'administration web moderne :
 
-- **Technologies** : React ou Vue.js, Node.js 18
+- **Technologies** : Vue.js 3.5, Vite 6.3, Element Plus, Pinia
 - **Fonctionnalités** :
   - Tableau de bord avec statistiques
   - Gestion des utilisateurs et groupes
   - Gestion des appareils (peers)
-  - Configuration OAuth
+  - Configuration OAuth (désactivable)
   - Visualisation des logs
   - Contrôle serveur RustDesk
+  - Support multilingue (fr, en, es, ru, ko)
+
+> **Source originale** : https://github.com/RobertLesgros/rustdesk_interface_web
 
 ### 3. Web Client RustDesk - Inclus
 
@@ -195,62 +196,65 @@ rustdesk_interface/
 
 ---
 
-## Intégration du Frontend Web
+## Frontend Web Admin
 
-### Pourquoi le Frontend est Séparé ?
+### Le Frontend est Intégré
 
-Le frontend d'administration est dans un repository séparé pour :
-1. **Séparation des préoccupations** - Backend Go et Frontend JS sont des projets distincts
-2. **Cycles de développement indépendants** - Le frontend peut évoluer sans toucher au backend
-3. **Flexibilité** - Possibilité de personnaliser le frontend
+Le frontend d'administration Vue.js est **directement inclus** dans ce repository dans le dossier `frontend/`. Aucune action supplémentaire n'est nécessaire.
 
-### Comment Intégrer le Frontend
-
-#### Option 1 : Script Automatique (Recommandé)
+### Développement du Frontend
 
 ```bash
-# Le script prepare-offline.sh clone et intègre automatiquement le frontend
-./scripts/prepare-offline.sh
-```
-
-#### Option 2 : Intégration Manuelle
-
-```bash
-# 1. Cloner le frontend dans le dossier frontend/
-git clone https://github.com/RobertLesgros/rustdesk_interface_web.git frontend
-
-# 2. Construire le frontend
 cd frontend
-npm install
-npm run build
 
-# 3. Copier vers resources/admin/
-cp -r dist/* ../resources/admin/
+# Installer les dépendances
+npm install
+
+# Mode développement avec hot reload
+npm run dev
+# → http://localhost:5173
+
+# Build production
+npm run build
+# → Fichiers dans dist/
 ```
 
-#### Option 3 : Comme Git Submodule
+### Structure du Frontend
 
-```bash
-# Ajouter comme submodule (si le repo est public)
-git submodule add https://github.com/RobertLesgros/rustdesk_interface_web.git frontend
-
-# Pour cloner avec les submodules
-git clone --recursive https://github.com/RobertLesgros/rustdesk_interface.git
+```
+frontend/
+├── src/
+│   ├── views/              # Pages Vue.js
+│   │   ├── login/         # Authentification
+│   │   ├── my/            # Espace utilisateur
+│   │   ├── user/          # Gestion utilisateurs (admin)
+│   │   ├── group/         # Gestion groupes
+│   │   ├── peer/          # Gestion appareils
+│   │   └── oauth/         # Configuration OAuth
+│   ├── components/         # Composants réutilisables
+│   ├── utils/
+│   │   ├── i18n/          # Traductions (fr, en, es, ru, ko)
+│   │   ├── auth.js        # Gestion authentification
+│   │   └── request.js     # Appels API axios
+│   └── router/             # Configuration routes
+├── public/                 # Fichiers statiques
+├── package.json            # Dépendances npm
+└── vite.config.js          # Configuration Vite
 ```
 
 ### Processus de Build Docker
 
-Le `Dockerfile.dev` intègre automatiquement le frontend :
+Le `Dockerfile.dev` compile automatiquement le frontend :
 
 ```dockerfile
 # Stage 1: Build Backend Go
 FROM crazymax/xgo:1.24 AS builder-backend
 # ... compilation Go ...
 
-# Stage 2: Build Frontend
+# Stage 2: Build Frontend (automatique)
 FROM node:18-alpine AS builder-admin-frontend
 WORKDIR /frontend
-COPY frontend/ .                    # ← Requiert le dossier frontend/
+COPY frontend/ .
 RUN npm install && npm run build
 
 # Stage 3: Image Finale
